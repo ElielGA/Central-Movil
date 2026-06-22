@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mensajería</title>
+    <link rel="icon" type="image/png" href="imagenes/llamada-telefonica.png?v=2">
+    <style>
+        /* Reseteo Global y Hoja de Estilos Maestra */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { display: flex; background-color: #f8fafc; height: 100vh; overflow: hidden; }
+        
+        .sidebar { width: 250px; background-color: #0f172a !important; color: white; height: 100vh; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; font-size: 18px; font-weight: bold; color: #10b981; border-bottom: 1px solid #1e293b; }
+        .sidebar-menu { list-style: none; padding-top: 10px; flex: 1; }
+        .sidebar-menu li a { display: block; padding: 15px 20px; color: #cbd5e1; text-decoration: none; font-size: 14px; transition: 0.3s; }
+        .sidebar-menu li a:hover { color: white; background-color: #1e293b; }
+        .sidebar-menu li a.active { background-color: #10b981; color: white; border-radius: 0 25px 25px 0; margin-right: 20px; }
+        
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .topbar { background-color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
+        
+        .dashboard-container { padding: 30px; display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; }
+        .card { background: white; padding: 25px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .card-title { font-size: 14px; font-weight: bold; color: #1e293b; margin-bottom: 20px; text-transform: uppercase; }
+        
+        .form-group { margin-bottom: 15px; width: 100%; }
+        .form-group label { display: block; font-size: 13px; color: #64748b; margin-bottom: 5px; font-weight: 500; }
+        .form-control { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; color: #1e293b; background-color: #f8fafc; width: 100%; }
+        .form-control:focus { outline: none; border-color: #10b981; }
+        textarea.form-control { resize: none; height: 100px; }
+        
+        .btn-primary { background-color: #10b981; color: white; width: 100%; padding: 12px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; }
+        .btn-primary:hover { background-color: #059669; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { padding: 15px 10px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        th { color: #64748b; font-size: 12px; text-transform: uppercase; }
+        .badge-warning { background-color: #fef08a; color: #854d0e; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">Central Móvil</div>
+        <ul class="sidebar-menu">
+            <li><a href="perfil.html">Mi Perfil</a></li>
+            <li id="menu-usuarios"><a href="usuarios.html">Usuarios</a></li>
+            <li id="menu-terminales"><a href="terminales.html">Terminales</a></li>
+            <li><a href="recargas.html">Recargas</a></li>
+            <li><a href="desvios.html">Desvíos</a></li>
+            <li><a href="mensajeria.html" class="active">Mensajería</a></li>
+            <li style="margin-top: 30px; border-top: 1px solid #1e293b;">
+                <a href="index.html" onclick="cerrarSesion()" style="color: #ef4444; font-weight: bold;">Salir</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div></div> 
+            <div id="nombreUsuario" style="font-weight: bold; color: #1e293b; font-size: 15px;">Cargando...</div>
+        </div>
+
+        <div class="dashboard-container">
+            <div class="card">
+                <div class="card-title">Redactar Nuevo Mensaje</div>
+                <form id="formSMS">
+                    <div class="form-group">
+                        <label>Enviar desde (Tu Línea Origen)</label>
+                        <select id="origenSelect" class="form-control" required><option value="">Cargando tus líneas...</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Número Destino</label>
+                        <input type="text" id="destinoInput" class="form-control" placeholder="Ej. 5501234567" required maxlength="10">
+                    </div>
+                    <div class="form-group">
+                        <label>Cuerpo del Mensaje</label>
+                        <textarea id="cuerpoInput" class="form-control" placeholder="Escribe tu texto aquí..." required maxlength="160"></textarea>
+                    </div>
+                    <p style="font-size: 11px; color: #64748b; margin-bottom: 10px; text-align: center;">* El costo de este mensaje se calculará dinámicamente.</p>
+                    <button type="submit" class="btn-primary">ENVIAR SMS</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Monitor de Tráfico de Red</div>
+                <table>
+                    <thead><tr><th>Origen</th><th>Destino Final</th><th>Mensaje</th><th>Costo</th><th>Ruta</th></tr></thead>
+                    <tbody id="tablaAuditoria"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const nombre = localStorage.getItem('cm_usuario_nombre');
+            const rol = localStorage.getItem('cm_usuario_rol');
+            if (!nombre) window.location.href = 'index.html'; 
+            else {
+                document.getElementById('nombreUsuario').innerText = nombre;
+                if (rol === 'CLIENTE') {
+                    const menuUsuarios = document.getElementById('menu-usuarios');
+                    const menuTerminales = document.getElementById('menu-terminales');
+                    if(menuUsuarios) menuUsuarios.style.display = 'none';
+                    if(menuTerminales) menuTerminales.style.display = 'none';
+                }
+            }
+        });
+
+        function cerrarSesion() { localStorage.clear(); window.location.href = 'index.html'; }
+
+       async function cargarMisLineas() {
+            try {
+                const respuesta = await fetch('/api/terminales');
+                let terminales = await respuesta.json();
+                
+                const nombreUser = localStorage.getItem('cm_usuario_nombre');
+                const rolUser = localStorage.getItem('cm_usuario_rol');
+
+                // EL FILTRO MÁGICO
+                if (rolUser === 'CLIENTE') {
+                    terminales = terminales.filter(t => t.nombre === nombreUser);
+                }
+
+                const select = document.getElementById('origenSelect');
+                select.innerHTML = '<option value="">Seleccione línea de salida...</option>';
+                
+                if (terminales.length === 0) {
+                    select.innerHTML = '<option value="">No tienes líneas para enviar SMS</option>';
+                } else {
+                    terminales.forEach(t => {
+                        select.innerHTML += `<option value="${t.numero_telefono}">${t.numero_telefono} ($${t.saldo.toFixed(2)})</option>`;
+                    });
+                }
+            } catch (error) { console.error(error); }
+        }
+      async function cargarTrafico() {
+            try {
+                const nombreUser = localStorage.getItem('cm_usuario_nombre');
+                const rolUser = localStorage.getItem('cm_usuario_rol');
+
+                // 1. Traer todos los mensajes de la red
+                const resMensajes = await fetch('/api/mensajes');
+                let mensajes = await resMensajes.json();
+
+                // 2. Filtro de Privacidad para Clientes
+                if (rolUser === 'CLIENTE') {
+                    // Obtenemos las terminales para saber cuáles le pertenecen
+                    const resTerminales = await fetch('/api/terminales');
+                    const terminales = await resTerminales.json();
+                    
+                    // Extraemos un arreglo solo con los números de este cliente
+                    const misNumeros = terminales
+                        .filter(t => t.nombre === nombreUser)
+                        .map(t => t.numero_telefono);
+
+                    // Filtramos la bitácora: solo ver enviados o recibidos por él
+                    mensajes = mensajes.filter(m => 
+                        misNumeros.includes(m.numero_origen) || 
+                        misNumeros.includes(m.numero_destino)
+                    );
+                }
+
+                // 3. Pintar la tabla
+                const tabla = document.getElementById('tablaAuditoria');
+                tabla.innerHTML = '';
+                
+                if (mensajes.length === 0) {
+                    tabla.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #64748b; padding: 20px;">No hay mensajes en tu historial.</td></tr>';
+                    return;
+                }
+
+                mensajes.forEach(m => {
+                    let badgeDesvio = m.es_desviado ? '<span class="badge-warning">RE-ENRUTADO</span>' : '<span style="color: #64748b; font-size: 11px;">Directa</span>';
+                    tabla.innerHTML += `
+                        <tr>
+                            <td style="font-weight: 500; color: #1e293b;">${m.numero_origen}</td>
+                            <td style="font-weight: 500; color: #1e293b;">${m.numero_destino}</td>
+                            <td style="color: #475569; font-style: italic;">"${m.cuerpo.substring(0, 30)}..."</td>
+                            <td style="font-weight: bold; color: #10b981;">$${m.costo_original.toFixed(2)}</td>
+                            <td>${badgeDesvio}</td>
+                        </tr>
+                    `;
+                });
+            } catch (error) { 
+                console.error("Error al cargar la bitácora de tráfico:", error); 
+            }
+        }
+        
+        document.getElementById('formSMS').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const datos = { origen: document.getElementById('origenSelect').value, destino: document.getElementById('destinoInput').value, cuerpo: document.getElementById('cuerpoInput').value };
+            try {
+                const respuesta = await fetch('/api/mensajes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(datos) });
+                if(respuesta.ok) {
+                    const exito = await respuesta.json(); alert(`¡Enviado! Costo total debitado: $${exito.costo.toFixed(2)}`);
+                    document.getElementById('formSMS').reset(); cargarMisLineas(); cargarTrafico();
+                } else { const errorMsg = await respuesta.text(); alert(errorMsg); }
+            } catch (error) { alert("Fallo de comunicación con la central."); }
+        });
+
+        cargarMisLineas(); cargarTrafico();
+    </script>
+</body>
+</html>

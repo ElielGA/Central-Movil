@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Desvíos</title>
+    <link rel="icon" type="image/png" href="imagenes/llamada-telefonica.png?v=2">
+    <style>
+        /* Reseteo Global y Hoja de Estilos Maestra */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { display: flex; background-color: #f8fafc; height: 100vh; overflow: hidden; }
+        
+        .sidebar { width: 250px; background-color: #0f172a !important; color: white; height: 100vh; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; font-size: 18px; font-weight: bold; color: #10b981; border-bottom: 1px solid #1e293b; }
+        .sidebar-menu { list-style: none; padding-top: 10px; flex: 1; }
+        .sidebar-menu li a { display: block; padding: 15px 20px; color: #cbd5e1; text-decoration: none; font-size: 14px; transition: 0.3s; }
+        .sidebar-menu li a:hover { color: white; background-color: #1e293b; }
+        .sidebar-menu li a.active { background-color: #10b981; color: white; border-radius: 0 25px 25px 0; margin-right: 20px; }
+        
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .topbar { background-color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
+        
+        .dashboard-container { padding: 30px; display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; }
+        .card { background: white; padding: 25px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .card-title { font-size: 14px; font-weight: bold; color: #1e293b; margin-bottom: 20px; text-transform: uppercase; }
+        
+        .form-group { margin-bottom: 15px; width: 100%; }
+        .form-group label { display: block; font-size: 13px; color: #64748b; margin-bottom: 5px; font-weight: 500; }
+        .form-control { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; color: #1e293b; background-color: #f8fafc; width: 100%; }
+        .form-control:focus { outline: none; border-color: #10b981; }
+        
+        .btn-primary { background-color: #10b981; color: white; width: 100%; padding: 12px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; margin-top: 10px;}
+        .btn-primary:hover { background-color: #059669; }
+        .btn-danger-outline { padding: 6px 12px; border: 1px solid #ef4444; color: #ef4444; background: transparent; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; }
+        .btn-danger-outline:hover { background: #ef4444; color: white; }
+
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { padding: 15px 10px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        th { color: #64748b; font-size: 12px; text-transform: uppercase; }
+        .dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; background-color: #10b981; }
+        .text-green { color: #10b981; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">Central Móvil</div>
+        <ul class="sidebar-menu">
+            <li><a href="perfil.html">Mi Perfil</a></li>
+            <li id="menu-usuarios"><a href="usuarios.html">Usuarios</a></li>
+            <li id="menu-terminales"><a href="terminales.html">Terminales</a></li>
+            <li><a href="recargas.html">Recargas</a></li>
+            <li><a href="desvios.html" class="active">Desvíos</a></li>
+            <li><a href="mensajeria.html">Mensajería</a></li>
+            <li style="margin-top: 30px; border-top: 1px solid #1e293b;">
+                <a href="index.html" onclick="cerrarSesion()" style="color: #ef4444; font-weight: bold;">Salir</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div></div> 
+            <div id="nombreUsuario" style="font-weight: bold; color: #1e293b; font-size: 15px;">Cargando...</div>
+        </div>
+
+        <div class="dashboard-container">
+            <div class="card">
+                <div class="card-title">Nueva Configuración de Desvío</div>
+                <form id="formDesvios">
+                    <div class="form-group">
+                        <label>Seleccionar Terminal (Origen)</label>
+                        <select id="origenSelect" class="form-control" required><option value="">Cargando terminales...</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Número Destino</label>
+                        <input type="text" id="destinoInput" class="form-control" placeholder="Ej. 5501234567" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Desvío</label>
+                        <select id="tipoDesvío" class="form-control">
+                            <option>Incondicional</option>
+                            <option>Si Ocupado</option>
+                            <option>Si No Contesta</option>
+                        </select>
+                    </div>
+                    <p style="font-size: 11px; color: #64748b; margin-top: 10px;">* El desvío se aplicará de forma inmediata en la red.</p>
+                    <button type="submit" class="btn-primary">ACTIVAR DESVÍO</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Tus Desvíos Activos</div>
+                <table>
+                    <thead><tr><th>Línea Origen</th><th>Línea Destino</th><th>Estado</th><th>Acciones</th></tr></thead>
+                    <tbody id="tablaDesvios"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 1. Carga inicial y Seguridad
+        document.addEventListener('DOMContentLoaded', () => {
+            const nombre = localStorage.getItem('cm_usuario_nombre');
+            const rol = localStorage.getItem('cm_usuario_rol');
+            
+            if (!nombre) {
+                window.location.href = 'index.html'; 
+                return;
+            }
+            
+            // Ocultar menús administrativos si es cliente
+            if (rol === 'CLIENTE') {
+                const menuUsuarios = document.getElementById('menu-usuarios');
+                const menuTerminales = document.getElementById('menu-terminales');
+                if(menuUsuarios) menuUsuarios.style.display = 'none';
+                if(menuTerminales) menuTerminales.style.display = 'none';
+            }
+
+            cargarTerminalesParaSelect();
+            cargarDesvios();
+        });
+
+        function cerrarSesion() { 
+            localStorage.clear(); 
+            window.location.href = 'index.html'; 
+        }
+
+        // 2. Cargar selectores (Filtro aplicado)
+        async function cargarTerminalesParaSelect() {
+            try {
+                const nombreUser = localStorage.getItem('cm_usuario_nombre');
+                const rolUser = localStorage.getItem('cm_usuario_rol');
+                
+                const respuesta = await fetch('/api/terminales');
+                let terminales = await respuesta.json();
+
+                if (rolUser === 'CLIENTE') {
+                    terminales = terminales.filter(t => t.nombre === nombreUser);
+                }
+
+                // Asume que tu select tiene el id "origenSelect" o cámbialo si usas otro
+                const select = document.querySelector('select'); 
+                select.innerHTML = '<option value="">Seleccione una línea...</option>';
+                
+                if (terminales.length === 0) {
+                    select.innerHTML = '<option value="">No tienes líneas registradas</option>';
+                } else {
+                    terminales.forEach(t => { 
+                        select.innerHTML += `<option value="${t.numero_telefono}">${t.numero_telefono}</option>`; 
+                    });
+                }
+            } catch (error) { console.error(error); }
+        }
+
+        // 3. Cargar tabla de desvíos (Filtro aplicado)
+        async function cargarDesvios() {
+            try {
+                const nombreUser = localStorage.getItem('cm_usuario_nombre');
+                const rolUser = localStorage.getItem('cm_usuario_rol');
+
+                const respuesta = await fetch('/api/desvios');
+                let desvios = await respuesta.json();
+
+                // EL FILTRO MÁGICO DE PRIVACIDAD
+                if (rolUser === 'CLIENTE') {
+                    const resTerminales = await fetch('/api/terminales');
+                    const terminales = await resTerminales.json();
+                    
+                    const misNumeros = terminales
+                        .filter(t => t.nombre === nombreUser)
+                        .map(t => t.numero_telefono);
+
+                    desvios = desvios.filter(d => misNumeros.includes(d.origen));
+                }
+
+                // Asume que tu tbody tiene un id como "tablaDesvios" (búscalo por tag si no tiene id)
+                const tabla = document.querySelector('tbody');
+                tabla.innerHTML = '';
+
+                if (desvios.length === 0) {
+                    tabla.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">No tienes desvíos activos.</td></tr>';
+                    return;
+                }
+
+                desvios.forEach(d => {
+                    tabla.innerHTML += `
+                        <tr>
+                            <td style="font-weight: 500; color: #1e293b;">${d.origen}</td>
+                            <td style="font-weight: bold; color: #64748b;">${d.destino}</td>
+                            <td style="color: #10b981; font-weight: 600;"><span style="height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; background-color: #10b981;"></span> Activo</td>
+                            <td><button style="border: 1px solid #ef4444; background: transparent; color: #ef4444; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;" onclick="desactivarDesvio('${d.origen}')">Desactivar</button></td>
+                        </tr>
+                    `;
+                });
+            } catch (error) { 
+                console.error("Error al cargar los desvíos:", error); 
+            }
+        }
+
+        // 4. Activar un nuevo desvío
+        document.querySelector('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            // Toma el primer select (origen) y el primer input de texto (destino)
+            const origen = document.querySelector('select').value;
+            const destinoInputs = document.querySelectorAll('input[type="text"], input[type="number"]');
+            const destino = destinoInputs[0].value; 
+
+            try {
+                const res = await fetch('/api/desvios', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ origen, destino })
+                });
+
+                if (res.ok) {
+                    document.querySelector('form').reset();
+                    cargarDesvios();
+                } else {
+                    const errorMsg = await res.text();
+                    alert(errorMsg);
+                }
+            } catch (error) {
+                alert("Error de conexión al configurar el desvío.");
+            }
+        });
+
+        // 5. Desactivar un desvío
+        async function desactivarDesvio(origen) {
+            if(!confirm(`¿Estás seguro de quitar el desvío de la línea ${origen}?`)) return;
+            try {
+                const res = await fetch(`/api/desvios/${origen}`, { method: 'DELETE' });
+                if (res.ok) cargarDesvios();
+                else alert("Error al desactivar.");
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>

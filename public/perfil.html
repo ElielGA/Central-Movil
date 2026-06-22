@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Perfil</title>
+    <link rel="icon" type="image/png" href="imagenes/llamada-telefonica.png?v=2">
+    <style>
+        /* Reseteo Global y Hoja de Estilos Maestra */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { display: flex; background-color: #f8fafc; height: 100vh; overflow: hidden; }
+        
+        /* Sidebar Estandarizado */
+        .sidebar { width: 250px; background-color: #0f172a !important; color: white; height: 100vh; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; font-size: 18px; font-weight: bold; color: #10b981; border-bottom: 1px solid #1e293b; }
+        .sidebar-menu { list-style: none; padding-top: 10px; flex: 1; }
+        .sidebar-menu li a { display: block; padding: 15px 20px; color: #cbd5e1; text-decoration: none; font-size: 14px; transition: 0.3s; }
+        .sidebar-menu li a:hover { color: white; background-color: #1e293b; }
+        .sidebar-menu li a.active { background-color: #10b981; color: white; border-radius: 0 25px 25px 0; margin-right: 20px; }
+        
+        /* Área Principal */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .topbar { background-color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
+        
+        /* Contenedores y Tarjetas del Perfil */
+        .dashboard-container { padding: 30px; display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+        
+        .card { background: white; padding: 25px; border-radius: 10px; border: 1px solid #e2e8f0; }
+        .card-title { font-size: 14px; font-weight: bold; color: #1e293b; margin-bottom: 20px; text-transform: uppercase; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        
+        /* Estilos del Avatar y Datos */
+        .profile-header { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 20px; }
+        .avatar { width: 100px; height: 100px; background-color: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: bold; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
+        .profile-name { font-size: 20px; color: #0f172a; font-weight: bold; }
+        .profile-role { font-size: 13px; color: #10b981; font-weight: bold; margin-top: 5px; background: #ecfdf5; padding: 4px 10px; border-radius: 12px; }
+        
+        .info-group { margin-bottom: 15px; }
+        .info-label { font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: bold; margin-bottom: 3px; }
+        .info-value { font-size: 15px; color: #1e293b; font-weight: 500; }
+
+        /* Tabla de líneas */
+        table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px; }
+        th, td { padding: 15px 10px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        th { color: #64748b; font-size: 12px; text-transform: uppercase; }
+        .dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+        .bg-green { background-color: #10b981; }
+        .bg-red { background-color: #ef4444; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">Central Móvil</div>
+        <ul class="sidebar-menu">
+            <li><a href="perfil.html" class="active">Mi Perfil</a></li>
+            <li id="menu-usuarios"><a href="usuarios.html">Usuarios</a></li>
+            <li id="menu-terminales"><a href="terminales.html">Terminales</a></li>
+            <li><a href="recargas.html">Recargas</a></li>
+            <li><a href="desvios.html">Desvíos</a></li>
+            <li><a href="mensajeria.html">Mensajería</a></li>
+            <li style="margin-top: 30px; border-top: 1px solid #1e293b;">
+                <a href="#" onclick="cerrarSesion()" style="color: #ef4444; font-weight: bold;">Salir</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div></div> 
+            <div id="topNombre" style="font-weight: bold; color: #1e293b; font-size: 15px;">Cargando...</div>
+        </div>
+
+        <div class="dashboard-container">
+            <div class="card">
+                <div class="profile-header">
+                    <div class="avatar" id="avatarInicial">?</div>
+                    <div class="profile-name" id="cardNombre">Cargando...</div>
+                    <div class="profile-role" id="cardRol">CLIENTE</div>
+                </div>
+                <div style="margin-top: 30px;">
+                    <div class="info-group">
+                        <div class="info-label">Estado de la Cuenta</div>
+                        <div class="info-value" style="color: #10b981;">● Activa y Verificada</div>
+                    </div>
+                    <div class="info-group">
+                        <div class="info-label">ID de Sistema</div>
+                        <div class="info-value" id="cardId">#0000</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Mis Líneas Telefónicas</div>
+                <p style="font-size: 13px; color: #64748b; margin-bottom: 15px;">Este es el resumen de las terminales registradas a tu nombre.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Número (Terminal)</th>
+                            <th>Estado de Red</th>
+                            <th>Saldo Disponible</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaMisLineas">
+                        </tbody>
+                </table>
+                <div id="mensajeSinLineas" style="display: none; text-align: center; padding: 20px; color: #64748b; font-size: 14px;">
+                    No tienes líneas telefónicas asignadas aún.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const nombre = localStorage.getItem('cm_usuario_nombre');
+            const rol = localStorage.getItem('cm_usuario_rol');
+            const id_user = localStorage.getItem('cm_usuario_id') || Math.floor(Math.random() * 1000); // Fallback visual
+
+            // Protección
+            if (!nombre) {
+                window.location.href = 'index.html'; 
+                return;
+            }
+
+            // Llenar datos visuales
+            document.getElementById('topNombre').innerText = nombre;
+            document.getElementById('cardNombre').innerText = nombre;
+            document.getElementById('avatarInicial').innerText = nombre.charAt(0).toUpperCase();
+            document.getElementById('cardRol').innerText = rol;
+            document.getElementById('cardId').innerText = "# " + id_user;
+
+            // Control de Sidebar (Ocultar a clientes)
+            if (rol === 'CLIENTE') {
+                const menuUsuarios = document.getElementById('menu-usuarios');
+                const menuTerminales = document.getElementById('menu-terminales');
+                if(menuUsuarios) menuUsuarios.style.display = 'none';
+                if(menuTerminales) menuTerminales.style.display = 'none';
+            }
+
+            cargarMisLineas(nombre);
+        });
+
+        function cerrarSesion() { 
+            localStorage.clear(); 
+            window.location.href = 'index.html'; 
+        }
+
+        async function cargarMisLineas(nombreUsuario) {
+            try {
+                // Reutilizamos el endpoint de terminales
+                const respuesta = await fetch('/api/terminales');
+                const todasLasTerminales = await respuesta.json();
+                
+                // Filtramos SOLO las terminales que le pertenecen a este usuario
+                const misTerminales = todasLasTerminales.filter(t => t.nombre === nombreUsuario);
+                
+                const tabla = document.getElementById('tablaMisLineas');
+                const mensajeVacio = document.getElementById('mensajeSinLineas');
+                
+                if (misTerminales.length === 0) {
+                    mensajeVacio.style.display = 'block';
+                } else {
+                    misTerminales.forEach(term => {
+                        let estadoHTML = term.esta_encendido 
+                            ? `<span style="color: #10b981; font-weight: 500;"><span class="dot bg-green"></span> Conectado</span>` 
+                            : `<span style="color: #ef4444; font-weight: 500;"><span class="dot bg-red"></span> Apagado</span>`;
+                            
+                        tabla.innerHTML += `
+                            <tr>
+                                <td style="font-weight: bold; color: #1e293b; font-size: 16px;">${term.numero_telefono}</td>
+                                <td>${estadoHTML}</td>
+                                <td style="font-weight: bold; color: #0f172a;">$${term.saldo.toFixed(2)}</td>
+                            </tr>
+                        `;
+                    });
+                }
+            } catch (error) {
+                console.error("Error al cargar las líneas:", error);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Recargas</title>
+    <link rel="icon" type="image/png" href="imagenes/llamada-telefonica.png?v=2">
+    <style>
+        /* Reseteo Global y Hoja de Estilos Maestra */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { display: flex; background-color: #f8fafc; height: 100vh; overflow: hidden; }
+        
+        /* Sidebar Estandarizado (Diseño Oscuro) */
+        .sidebar { width: 250px; background-color: #0f172a !important; color: white; height: 100vh; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; font-size: 18px; font-weight: bold; color: #10b981; border-bottom: 1px solid #1e293b; }
+        .sidebar-menu { list-style: none; padding-top: 10px; flex: 1; }
+        .sidebar-menu li a { display: block; padding: 15px 20px; color: #cbd5e1; text-decoration: none; font-size: 14px; transition: 0.3s; }
+        .sidebar-menu li a:hover { color: white; background-color: #1e293b; }
+        .sidebar-menu li a.active { background-color: #10b981; color: white; border-radius: 0 25px 25px 0; margin-right: 20px; }
+        
+        /* Área Principal */
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .topbar { background-color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
+        
+        /* Contenedores y Tarjetas */
+        .dashboard-container { padding: 30px; display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; }
+        .card { background: white; padding: 25px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .card-title { font-size: 14px; font-weight: bold; color: #1e293b; margin-bottom: 20px; text-transform: uppercase; }
+        
+        /* Formularios y Botones */
+        .form-group { margin-bottom: 15px; width: 100%; }
+        .form-group label { display: block; font-size: 13px; color: #64748b; margin-bottom: 5px; font-weight: 500; }
+        .form-control { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; color: #1e293b; background-color: #f8fafc; width: 100%; }
+        .form-control:focus { outline: none; border-color: #10b981; }
+        
+        .btn-primary { background-color: #10b981; color: white; width: 100%; padding: 12px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; transition: 0.2s; margin-top: 10px;}
+        .btn-primary:hover { background-color: #059669; }
+        .btn-outline { flex: 1; padding: 8px; border: 1px solid #10b981; background: transparent; color: #10b981; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-outline:hover { background: #10b981; color: white; }
+        .quick-amounts { display: flex; gap: 10px; margin-bottom: 15px; }
+
+        /* Tablas e Indicadores */
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { padding: 15px 10px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        th { color: #64748b; font-size: 12px; text-transform: uppercase; }
+        .dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; background-color: #10b981; }
+        .text-green { color: #10b981; font-weight: 600; }
+    </style>
+    
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">Central Móvil</div>
+        <ul class="sidebar-menu">
+            <li><a href="perfil.html">Mi Perfil</a></li>
+            <li id="menu-usuarios"><a href="usuarios.html">Usuarios</a></li>
+            <li id="menu-terminales"><a href="terminales.html">Terminales</a></li>
+            <li><a href="recargas.html" class="active">Recargas</a></li>
+            <li><a href="desvios.html">Desvíos</a></li>
+            <li><a href="mensajeria.html">Mensajería</a></li>
+            
+            <li style="margin-top: 30px; border-top: 1px solid #1e293b;">
+                <a href="index.html" onclick="cerrarSesion()" style="color: #ef4444; font-weight: bold;">Salir</a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div></div> 
+            <div id="nombreUsuario" style="font-weight: bold; color: #1e293b; font-size: 15px;">Cargando...</div>
+        </div>
+
+        <div class="dashboard-container">
+            <div class="card">
+                <div class="card-title">Nueva Recarga de Saldo</div>
+                <form id="formRecarga">
+                    <div class="form-group">
+                        <label>Seleccionar Terminal</label>
+                        <select id="terminalSelect" class="form-control" required>
+                            <option value="">Cargando terminales...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Monto a recargar ($)</label>
+                        <input type="number" id="montoInput" class="form-control" placeholder="Ej. 150.00" required step="0.01">
+                    </div>
+                    <div class="quick-amounts">
+                        <button type="button" class="btn-outline" onclick="setMonto(50)">$50</button>
+                        <button type="button" class="btn-outline" onclick="setMonto(100)">$100</button>
+                        <button type="button" class="btn-outline" onclick="setMonto(200)">$200</button>
+                        <button type="button" class="btn-outline" onclick="setMonto(500)">$500</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Método de Pago</label>
+                        <select id="metodoPago" class="form-control" required>
+                            <option value="Tarjeta Guardada: **** 4567">Tarjeta Guardada: **** 4567</option>
+                            <option value="Transferencia SPEI">Transferencia SPEI</option>
+                            <option value="Depósito en Efectivo">Depósito en Efectivo</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-primary">PROCESAR RECARGA</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Historial de Recargas Recientes</div>
+                <table>
+                    <thead><tr><th>ID Transacción</th><th>Fecha/Hora</th><th>Monto</th><th>Estado</th></tr></thead>
+                    <tbody id="tablaHistorial"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const nombre = localStorage.getItem('cm_usuario_nombre');
+            const rol = localStorage.getItem('cm_usuario_rol');
+            const idUser = localStorage.getItem('cm_usuario_id') || '1'; // Recuperamos el ID del usuario
+            
+            if (!nombre) window.location.href = 'index.html'; 
+            else {
+                document.getElementById('nombreUsuario').innerText = nombre;
+                if (rol === 'CLIENTE') {
+                    const menuUsuarios = document.getElementById('menu-usuarios');
+                    const menuTerminales = document.getElementById('menu-terminales');
+                    if(menuUsuarios) menuUsuarios.style.display = 'none';
+                    if(menuTerminales) menuTerminales.style.display = 'none';
+                }
+
+                // SIMULACION DE TARJETA DINAMICA POR USUARIO
+                // Genera 4 digitos unicos basados de forma determinista en el ID del usuario
+                const digitosSimulados = (parseInt(idUser) * 383) % 9000 + 1000;
+                const selectPago = document.getElementById('metodoPago');
+                if (selectPago && selectPago.options[0]) {
+                    selectPago.options[0].value = `Tarjeta Guardada: **** ${digitosSimulados}`;
+                    selectPago.options[0].text = `Tarjeta Guardada: **** ${digitosSimulados}`;
+                }
+            }
+        });
+
+        function cerrarSesion() { localStorage.clear(); window.location.href = 'index.html'; }
+        function setMonto(cantidad) { document.getElementById('montoInput').value = cantidad; }
+
+        async function cargarTerminalesParaSelect() {
+            try {
+                const respuesta = await fetch('/api/terminales');
+                let terminales = await respuesta.json();
+                
+                const nombreUser = localStorage.getItem('cm_usuario_nombre');
+                const rolUser = localStorage.getItem('cm_usuario_rol');
+
+                // EL FILTRO MÁGICO: Si es cliente, solo ve sus líneas
+                if (rolUser === 'CLIENTE') {
+                    terminales = terminales.filter(t => t.nombre === nombreUser);
+                }
+
+                const select = document.getElementById('terminalSelect');
+                select.innerHTML = '<option value="">Seleccione una línea...</option>';
+                
+                if (terminales.length === 0) {
+                    select.innerHTML = '<option value="">No tienes líneas registradas</option>';
+                } else {
+                    terminales.forEach(t => {
+                        const estado = t.esta_encendido ? "Conectado" : "Apagado";
+                        select.innerHTML += `<option value="${t.numero_telefono}">${t.numero_telefono} • ${estado}</option>`;
+                    });
+                }
+            } catch (error) { console.error(error); }
+        }
+
+        async function cargarHistorial() {
+            try {
+                const nombreUser = localStorage.getItem('cm_usuario_nombre');
+                const rolUser = localStorage.getItem('cm_usuario_rol');
+
+                // 1. Obtener todo el historial de la base de datos
+                const resRecargas = await fetch('/api/recargas');
+                let recargas = await resRecargas.json();
+
+                // 2. Filtro de Privacidad (Aislamiento de Datos)
+                if (rolUser === 'CLIENTE') {
+                    const resTerminales = await fetch('/api/terminales');
+                    const terminales = await resTerminales.json();
+                    const misNumeros = terminales
+                        .filter(t => t.nombre === nombreUser)
+                        .map(t => t.numero_telefono);
+
+                    recargas = recargas.filter(r => misNumeros.includes(r.numero_telefono));
+                }
+
+                // 3. Pintar la tabla
+                const tabla = document.getElementById('tablaHistorial');
+                tabla.innerHTML = '';
+
+                if (recargas.length === 0) {
+                    tabla.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #64748b; padding: 20px;">No tienes historial de recargas.</td></tr>';
+                    return;
+                }
+
+                recargas.forEach(r => {
+                    let fechaFormateada = new Date(r.fecha_hora).toLocaleString('es-MX', { 
+    year: 'numeric', month: 'short', day: 'numeric', 
+    hour: '2-digit', minute: '2-digit',
+    timeZone: 'UTC' 
+});
+
+                    tabla.innerHTML += `
+                        <tr>
+                            <td style="font-weight: 500; color: #64748b; font-size: 13px;">${r.id_recarga}</td>
+                            <td style="font-weight: bold; color: #1e293b;">${r.numero_telefono}</td>
+                            <td style="font-weight: bold; color: #10b981;">$${r.monto.toFixed(2)}</td>
+                            <td>${r.tipo_pago}</td>
+                            <td style="color: #64748b; font-size: 13px;">${fechaFormateada}</td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error("Error al cargar historial:", error);
+            }
+        }
+
+        document.getElementById('formRecarga').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const datos = { 
+                numero_telefono: document.getElementById('terminalSelect').value, 
+                monto: parseFloat(document.getElementById('montoInput').value), 
+                tipo_pago: document.getElementById('metodoPago').value 
+            };
+            try {
+                const respuesta = await fetch('/api/recargas', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify(datos) 
+                });
+                
+                if(respuesta.ok) { 
+                    document.getElementById('formRecarga').reset(); 
+                    cargarHistorial(); // <- Corrección de nombre aquí
+                } else { 
+                    alert("Error al procesar la recarga."); 
+                }
+            } catch (error) { 
+                alert("Error de conexión con el servidor."); 
+                console.error(error);
+            }
+        });
+
+        cargarTerminalesParaSelect(); 
+        cargarHistorial(); // <- Corrección de nombre aquí
+    </script>
+</body>
+</html>
