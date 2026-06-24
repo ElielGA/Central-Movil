@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Central Móvil</title>
+    <title>Central Móvil | Acceso Seguro</title>
     <link rel="icon" type="image/png" href="imagenes/llamada-telefonica.png?v=2">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -15,32 +15,33 @@
         .form-group { margin-bottom: 20px; text-align: left; }
         .form-group label { display: block; font-size: 13px; color: #475569; margin-bottom: 5px; font-weight: 500; }
         .form-control { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; background-color: #f8fafc; }
+        .form-control:focus { outline: none; border-color: #10b981; }
         
-        .btn-primary { width: 100%; padding: 12px; background-color: #0f172a; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 10px; }
-        .btn-primary:hover { background-color: #0f172a; }
+        .btn-primary { width: 100%; padding: 12px; background-color: #0f172a; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px; margin-top: 10px; transition: 0.2s; }
+        .btn-primary:hover { background-color: #1e293b; }
     </style>
 </head>
 <body>
 
 <div class="login-container">
     <h1 id="tituloPrincipal">Iniciar Sesión</h1>
-    <p id="subtitulo">Ingresa tus credenciales para acceder a la red.</p>
+    <p id="subtitulo">Acceso autenticado a la red.</p>
     
     <form id="loginForm">
-        <div class="form-group"><label>Usuario</label><input type="text" id="user" class="form-control" required></div>
-        <div class="form-group"><label>Contraseña</label><input type="password" id="pass" class="form-control" required></div>
+        <div class="form-group"><label>Correo Electrónico</label><input type="email" id="emailLogin" class="form-control" required></div>
+        <div class="form-group"><label>Contraseña</label><input type="password" id="passLogin" class="form-control" required></div>
         <button type="submit" class="btn-primary">ENTRAR</button>
     </form>
 
     <form id="registroForm" style="display: none;">
         <div class="form-group"><label>Nombre Completo</label><input type="text" id="regNombre" class="form-control" required></div>
-        <div class="form-group"><label>Usuario</label><input type="text" id="regUser" class="form-control" required></div>
-        <div class="form-group"><label>Contraseña</label><input type="password" id="regPass" class="form-control" required></div>
+        <div class="form-group"><label>Correo Electrónico</label><input type="email" id="regEmail" class="form-control" required></div>
+        <div class="form-group"><label>Contraseña Segura</label><input type="password" id="regPass" class="form-control" minlength="6" required></div>
         <button type="submit" class="btn-primary">CREAR CUENTA</button>
     </form>
 
     <div style="margin-top: 20px; font-size: 13px;">
-        <p id="toggleText">¿No tienes cuenta? <a href="#" onclick="toggleMode()">Regístrate aquí</a></p>
+        <p id="toggleText">¿No tienes cuenta? <a href="#" onclick="toggleMode()" style="color: #10b981; font-weight: bold;">Regístrate aquí</a></p>
     </div>
 </div>
 
@@ -54,48 +55,58 @@
 
         if (login.style.display === 'none') {
             login.style.display = 'block'; reg.style.display = 'none';
-            tit.innerText = "Iniciar Sesión"; sub.innerText = "Ingresa tus credenciales para acceder a la red.";
-            toggle.innerHTML = '¿No tienes cuenta? <a href="#" onclick="toggleMode()">Regístrate aquí</a>';
+            tit.innerText = "Iniciar Sesión"; sub.innerText = "Acceso autenticado a la red.";
+            toggle.innerHTML = '¿No tienes cuenta? <a href="#" onclick="toggleMode()" style="color: #10b981; font-weight: bold;">Regístrate aquí</a>';
         } else {
             login.style.display = 'none'; reg.style.display = 'block';
-            tit.innerText = "Registro"; sub.innerText = "Registra tu usuario para acceder a la red.";
-            toggle.innerHTML = '¿Ya tienes cuenta? <a href="#" onclick="toggleMode()">Inicia sesión aquí</a>';
+            tit.innerText = "Registro Seguro"; sub.innerText = "Limitado a 1 cuenta por IP y Correo.";
+            toggle.innerHTML = '¿Ya tienes cuenta? <a href="#" onclick="toggleMode()" style="color: #10b981; font-weight: bold;">Inicia sesión aquí</a>';
         }
     }
 
-    // Lógica de Login
+    // Lógica de Login con Cifrado
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const res = await fetch('/api/login', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ username: document.getElementById('user').value, password: document.getElementById('pass').value })
-        });
-        if(res.ok) {
-            const data = await res.json();
-            localStorage.setItem('cm_usuario_nombre', data.nombre);
-            localStorage.setItem('cm_usuario_rol', data.rol);
-            window.location.href = 'perfil.html';
-        } else { alert("Credenciales incorrectas"); }
+        try {
+            const res = await fetch('/api/login', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email: document.getElementById('emailLogin').value, password: document.getElementById('passLogin').value })
+            });
+            if(res.ok) {
+                const data = await res.json();
+                localStorage.setItem('cm_usuario_id', data.id_usuario);
+                localStorage.setItem('cm_usuario_nombre', data.nombre);
+                localStorage.setItem('cm_usuario_rol', data.rol);
+                window.location.href = 'perfil.html';
+            } else { 
+                const errorText = await res.text();
+                alert("❌ Acceso denegado: " + errorText); 
+            }
+        } catch (err) { alert("Error de red."); }
     });
 
-    // Lógica de Registro
+    // Lógica de Registro con IP y Correo
     document.getElementById('registroForm').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const res = await fetch('/api/registro', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ 
-                nombre: document.getElementById('regNombre').value,
-                username: document.getElementById('regUser').value,
-                password: document.getElementById('regPass').value,
-                rol: 'CLIENTE'
-            })
-        });
-        if(res.ok) { alert("Usuario creado con éxito"); toggleMode(); }
-        else { alert("Error al registrar"); }
+        try {
+            const res = await fetch('/api/registro', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ 
+                    nombre: document.getElementById('regNombre').value,
+                    email: document.getElementById('regEmail').value,
+                    password: document.getElementById('regPass').value,
+                    rol: 'CLIENTE'
+                })
+            });
+            if(res.ok) { 
+                alert("✅ Cuenta creada con éxito. Ya puedes iniciar sesión."); 
+                toggleMode(); 
+            } else { 
+                const errText = await res.text();
+                alert("❌ Error: " + errText); 
+            }
+        } catch (err) { alert("Error de red."); }
     });
-
-    
 </script>
-
 </body>
 </html>

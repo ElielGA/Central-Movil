@@ -2,48 +2,66 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Mi Perfil</title>
+    <title>Mi Perfil | Central Móvil</title>
     <link rel="icon" type="image/png" href="imagenes/llamada-telefonica.png?v=2">
     <style>
-        /* Reseteo Global y Hoja de Estilos Maestra */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { display: flex; background-color: #f8fafc; height: 100vh; overflow: hidden; }
         
-        /* Sidebar Estandarizado */
-        .sidebar { width: 250px; background-color: #0f172a !important; color: white; height: 100vh; display: flex; flex-direction: column; }
+        /* Sidebar (Intacto para mantener tu diseño) */
+        .sidebar { width: 250px; background-color: #0f172a; color: white; height: 100vh; display: flex; flex-direction: column; }
         .sidebar-header { padding: 20px; font-size: 18px; font-weight: bold; color: #10b981; border-bottom: 1px solid #1e293b; }
         .sidebar-menu { list-style: none; padding-top: 10px; flex: 1; }
         .sidebar-menu li a { display: block; padding: 15px 20px; color: #cbd5e1; text-decoration: none; font-size: 14px; transition: 0.3s; }
         .sidebar-menu li a:hover { color: white; background-color: #1e293b; }
         .sidebar-menu li a.active { background-color: #10b981; color: white; border-radius: 0 25px 25px 0; margin-right: 20px; }
         
-        /* Área Principal */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
         .topbar { background-color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
         
-        /* Contenedores y Tarjetas del Perfil */
-        .dashboard-container { padding: 30px; display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+        .dashboard-container { padding: 30px; display: flex; flex-direction: column; gap: 25px; max-width: 1200px; margin: 0 auto; width: 100%; }
         
-        .card { background: white; padding: 25px; border-radius: 10px; border: 1px solid #e2e8f0; }
-        .card-title { font-size: 14px; font-weight: bold; color: #1e293b; margin-bottom: 20px; text-transform: uppercase; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; }
+        /* HEADER DEL PERFIL: Estilo Moderno */
+        .profile-header { display: flex; align-items: center; gap: 20px; background: white; padding: 30px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #047857); color: white; display: flex; justify-content: center; align-items: center; font-size: 32px; font-weight: bold; text-transform: uppercase; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
+        .profile-title h2 { color: #0f172a; font-size: 24px; margin-bottom: 5px; }
+        .profile-title p { color: #64748b; font-size: 15px; }
         
-        /* Estilos del Avatar y Datos */
-        .profile-header { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 20px; }
-        .avatar { width: 100px; height: 100px; background-color: #10b981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: bold; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2); }
-        .profile-name { font-size: 20px; color: #0f172a; font-weight: bold; }
-        .profile-role { font-size: 13px; color: #10b981; font-weight: bold; margin-top: 5px; background: #ecfdf5; padding: 4px 10px; border-radius: 12px; }
+        /* TARJETA DE DATOS */
+        .card { background: white; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; }
+        .card-title { font-size: 18px; font-weight: bold; color: #1e293b; }
         
-        .info-group { margin-bottom: 15px; }
-        .info-label { font-size: 12px; color: #64748b; text-transform: uppercase; font-weight: bold; margin-bottom: 3px; }
-        .info-value { font-size: 15px; color: #1e293b; font-weight: 500; }
+        .profile-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .info-group label { display: block; font-size: 12px; color: #64748b; text-transform: uppercase; margin-bottom: 5px; letter-spacing: 0.5px; }
+        .info-group div { font-size: 15px; font-weight: 600; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+        .info-group .tag { background: #f1f5f9; padding: 4px 10px; border-radius: 20px; font-size: 12px; color: #475569; border: 1px solid #cbd5e1; }
 
-        /* Tabla de líneas */
-        table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px; }
-        th, td { padding: 15px 10px; text-align: left; border-bottom: 1px solid #f1f5f9; }
-        th { color: #64748b; font-size: 12px; text-transform: uppercase; }
-        .dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-        .bg-green { background-color: #10b981; }
-        .bg-red { background-color: #ef4444; }
+        /* TARJETAS DE LÍNEAS (eSIM UI) */
+        .esim-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 15px; }
+        .esim-card { background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 16px; padding: 25px; color: white; position: relative; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: space-between; min-height: 180px; }
+        .esim-card::before { content: ''; position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.05); border-radius: 50%; }
+        
+        .esim-header { display: flex; justify-content: space-between; align-items: flex-start; z-index: 1; }
+        .esim-chip { width: 40px; height: 30px; background: #fbbf24; border-radius: 4px; opacity: 0.9; background-image: linear-gradient(to right, rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.1) 1px, transparent 1px); background-size: 10px 10px; }
+        
+        .esim-number { font-size: 26px; font-weight: bold; letter-spacing: 2px; margin-top: 20px; z-index: 1; font-family: monospace; }
+        .esim-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; z-index: 1; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
+        .esim-balance { font-size: 18px; font-weight: bold; color: #10b981; }
+        
+        /* ESTADOS DE ESIM */
+        .esim-card.pending { background: linear-gradient(135deg, #64748b, #475569); }
+        .esim-card.pending .esim-balance { color: #fcd34d; }
+        .badge-pending { background: rgba(245, 158, 11, 0.2); color: #fcd34d; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; border: 1px solid rgba(245, 158, 11, 0.5); }
+        
+        .btn { padding: 10px 20px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; font-size: 14px; transition: 0.2s; z-index: 1; }
+        .btn-primary { background-color: #10b981; color: white; }
+        .btn-primary:hover { background-color: #059669; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+        .btn-off { background-color: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.5); }
+        .btn-on { background-color: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.5); }
+        
+        .status-dot { height: 10px; width: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
     </style>
 </head>
 <body>
@@ -51,131 +69,271 @@
     <div class="sidebar">
         <div class="sidebar-header">Central Móvil</div>
         <ul class="sidebar-menu">
-            <li><a href="perfil.html" class="active">Mi Perfil</a></li>
+          <li><a href="perfil.html" class="active">Mi Perfil</a></li>
+            <li id="menu-reportes"><a href="reportes.html">Reportes</a></li>
             <li id="menu-usuarios"><a href="usuarios.html">Usuarios</a></li>
             <li id="menu-terminales"><a href="terminales.html">Terminales</a></li>
             <li><a href="recargas.html">Recargas</a></li>
             <li><a href="desvios.html">Desvíos</a></li>
             <li><a href="mensajeria.html">Mensajería</a></li>
             <li style="margin-top: 30px; border-top: 1px solid #1e293b;">
-                <a href="#" onclick="cerrarSesion()" style="color: #ef4444; font-weight: bold;">Salir</a>
+                <a href="index.html" onclick="cerrarSesion()" style="color: #ef4444; font-weight: bold;">Salir</a>
             </li>
         </ul>
     </div>
 
     <div class="main-content">
         <div class="topbar">
-            <div></div> 
-            <div id="topNombre" style="font-weight: bold; color: #1e293b; font-size: 15px;">Cargando...</div>
+            <div></div>
+            <div id="nombreUsuario" style="font-weight: bold; color: #1e293b; font-size: 15px;">Cargando...</div>
         </div>
 
         <div class="dashboard-container">
-            <div class="card">
-                <div class="profile-header">
-                    <div class="avatar" id="avatarInicial">?</div>
-                    <div class="profile-name" id="cardNombre">Cargando...</div>
-                    <div class="profile-role" id="cardRol">CLIENTE</div>
-                </div>
-                <div style="margin-top: 30px;">
-                    <div class="info-group">
-                        <div class="info-label">Estado de la Cuenta</div>
-                        <div class="info-value" style="color: #10b981;">● Activa y Verificada</div>
-                    </div>
-                    <div class="info-group">
-                        <div class="info-label">ID de Sistema</div>
-                        <div class="info-value" id="cardId">#0000</div>
-                    </div>
+            
+            <div class="profile-header">
+                <div class="avatar" id="avatarLetras">--</div>
+                <div class="profile-title">
+                    <h2 id="saludoDinamico">Hola, Cargando...</h2>
+                    <p>Bienvenido a tu panel de control personal.</p>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-title">Mis Líneas Telefónicas</div>
-                <p style="font-size: 13px; color: #64748b; margin-bottom: 15px;">Este es el resumen de las terminales registradas a tu nombre.</p>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Número (Terminal)</th>
-                            <th>Estado de Red</th>
-                            <th>Saldo Disponible</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaMisLineas">
-                        </tbody>
-                </table>
-                <div id="mensajeSinLineas" style="display: none; text-align: center; padding: 20px; color: #64748b; font-size: 14px;">
-                    No tienes líneas telefónicas asignadas aún.
+                <div class="card-header">
+                    <div class="card-title">Datos de la Cuenta</div>
+                    <span class="tag" style="background: #dcfce7; color: #166534; border-color: #bbf7d0;">✓ Cuenta Verificada</span>
+                </div>
+                <div class="profile-info">
+                    <div class="info-group">
+                        <label>Nombre Completo</label>
+                        <div id="infoNombre">Cargando...</div>
+                    </div>
+                    <div class="info-group">
+                        <label>Correo Electrónico (Usuario)</label>
+                        <div id="infoEmail">Consultando datos...</div>
+                    </div>
+                    <div class="info-group">
+                        <label>ID de Cliente</label>
+                        <div># <span id="infoID">...</span></div>
+                    </div>
+                    <div class="info-group" id="grupoRol">
+                        <label>Rol en Sistema</label>
+                        <div id="infoRol">...</div>
+                    </div>
                 </div>
             </div>
+
+            <div class="card" id="seccionMisLineas">
+                <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+                    <div class="card-title">Mis Líneas Telefónicas</div>
+                    <button id="btnSolicitarLinea" class="btn btn-primary" onclick="solicitarNuevaLinea()">+ Solicitar Línea Virtual</button>
+                </div>
+                
+                <div class="esim-grid" id="gridMisLineas">
+                    </div>
+            </div>
+
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const nombre = localStorage.getItem('cm_usuario_nombre');
-            const rol = localStorage.getItem('cm_usuario_rol');
-            const id_user = localStorage.getItem('cm_usuario_id') || Math.floor(Math.random() * 1000); // Fallback visual
+        document.addEventListener('DOMContentLoaded', async () => {
+            const nombreGuardado = localStorage.getItem('cm_usuario_nombre');
+            const rolGuardado = localStorage.getItem('cm_usuario_rol');
+            const idGuardado = localStorage.getItem('cm_usuario_id');
 
-            // Protección
-            if (!nombre) {
+            if (!nombreGuardado) {
                 window.location.href = 'index.html'; 
                 return;
             }
 
-            // Llenar datos visuales
-            document.getElementById('topNombre').innerText = nombre;
-            document.getElementById('cardNombre').innerText = nombre;
-            document.getElementById('avatarInicial').innerText = nombre.charAt(0).toUpperCase();
-            document.getElementById('cardRol').innerText = rol;
-            document.getElementById('cardId').innerText = "# " + id_user;
+            // 1. Lógica de Avatar e Interfaz
+            document.getElementById('nombreUsuario').innerText = nombreGuardado;
+            document.getElementById('infoNombre').innerText = nombreGuardado;
+            document.getElementById('infoID').innerText = idGuardado;
+            document.getElementById('avatarLetras').innerText = obtenerIniciales(nombreGuardado);
+            document.getElementById('saludoDinamico').innerText = obtenerSaludo() + ", " + nombreGuardado.split(" ")[0];
 
-            // Control de Sidebar (Ocultar a clientes)
-            if (rol === 'CLIENTE') {
+            // 2. Lógica de Seguridad de UI (Ocultar Rol al Cliente)
+            if (rolGuardado === 'CLIENTE') {
                 const menuUsuarios = document.getElementById('menu-usuarios');
                 const menuTerminales = document.getElementById('menu-terminales');
+                const menuReportes = document.getElementById('menu-reportes');
+                const grupoRol = document.getElementById('grupoRol');
+                
                 if(menuUsuarios) menuUsuarios.style.display = 'none';
                 if(menuTerminales) menuTerminales.style.display = 'none';
+                if(menuReportes) menuReportes.style.display = 'none';
+                if(grupoRol) grupoRol.style.display = 'none'; // Ocultamos la caja de "Rol"
+            } else {
+                document.getElementById('infoRol').innerHTML = `<span class="tag">${rolGuardado}</span>`;
             }
 
-            cargarMisLineas(nombre);
+            // 3. Buscar el correo electrónico del usuario desde el catálogo
+            await buscarCorreoUsuario(idGuardado);
+            
+            // 4. Cargar las líneas
+            cargarMisLineas();
         });
 
-        function cerrarSesion() { 
-            localStorage.clear(); 
-            window.location.href = 'index.html'; 
+        function cerrarSesion() { localStorage.clear(); window.location.href = 'index.html'; }
+
+        // --- FUNCIONES DE DISEÑO UX ---
+        function obtenerIniciales(nombre) {
+            const partes = nombre.trim().split(" ");
+            if (partes.length === 1) return partes[0].substring(0, 2);
+            return (partes[0][0] + partes[1][0]).toUpperCase();
         }
 
-        async function cargarMisLineas(nombreUsuario) {
+        function obtenerSaludo() {
+            const hora = new Date().getHours();
+            if (hora < 12) return "Buenos días";
+            if (hora < 19) return "Buenas tardes";
+            return "Buenas noches";
+        }
+
+        function formatearNumero(numero) {
+            // Convierte 5512345678 a 55 1234 5678
+            if(numero.length === 10) {
+                return `${numero.substring(0,2)} ${numero.substring(2,6)} ${numero.substring(6,10)}`;
+            }
+            return numero;
+        }
+
+        // --- EXTRAER CORREO ELECTRÓNICO ---
+        async function buscarCorreoUsuario(id) {
             try {
-                // Reutilizamos el endpoint de terminales
+                const res = await fetch('/api/usuarios');
+                const usuarios = await res.json();
+                const miUsuario = usuarios.find(u => u.id_usuario == id);
+                
+                if (miUsuario) {
+                    document.getElementById('infoEmail').innerText = miUsuario.username; // En tu BD, email = username
+                } else {
+                    document.getElementById('infoEmail').innerText = "No disponible";
+                }
+            } catch (e) {
+                document.getElementById('infoEmail').innerText = "No disponible";
+            }
+        }
+
+        // --- CARGAR LÍNEAS COMO TARJETAS eSIM ---
+        // --- CARGAR LÍNEAS COMO TARJETAS eSIM Y BLOQUEAR BOTÓN SI APLICA ---
+        async function cargarMisLineas() {
+            try {
+                const nombreUser = localStorage.getItem('cm_usuario_nombre');
+                
                 const respuesta = await fetch('/api/terminales');
                 const todasLasTerminales = await respuesta.json();
+                const misTerminales = todasLasTerminales.filter(t => t.nombre === nombreUser);
                 
-                // Filtramos SOLO las terminales que le pertenecen a este usuario
-                const misTerminales = todasLasTerminales.filter(t => t.nombre === nombreUsuario);
-                
-                const tabla = document.getElementById('tablaMisLineas');
-                const mensajeVacio = document.getElementById('mensajeSinLineas');
-                
-                if (misTerminales.length === 0) {
-                    mensajeVacio.style.display = 'block';
+                const grid = document.getElementById('gridMisLineas');
+                const btnSolicitar = document.getElementById('btnSolicitarLinea');
+                grid.innerHTML = ''; 
+
+                // --- MAGIA UX: Bloquear botón si tiene pendientes ---
+                const tienePendientes = misTerminales.some(t => t.estado_aprobacion === 'Pendiente');
+                if (tienePendientes) {
+                    btnSolicitar.disabled = true;
+                    btnSolicitar.style.background = '#94a3b8'; // Color gris
+                    btnSolicitar.style.cursor = 'not-allowed';
+                    btnSolicitar.innerText = '⏳ Solicitud en Revisión';
+                    btnSolicitar.title = 'No puedes solicitar otra línea hasta que te aprueben la actual.';
                 } else {
-                    misTerminales.forEach(term => {
-                        let estadoHTML = term.esta_encendido 
-                            ? `<span style="color: #10b981; font-weight: 500;"><span class="dot bg-green"></span> Conectado</span>` 
-                            : `<span style="color: #ef4444; font-weight: 500;"><span class="dot bg-red"></span> Apagado</span>`;
-                            
-                        tabla.innerHTML += `
-                            <tr>
-                                <td style="font-weight: bold; color: #1e293b; font-size: 16px;">${term.numero_telefono}</td>
-                                <td>${estadoHTML}</td>
-                                <td style="font-weight: bold; color: #0f172a;">$${term.saldo.toFixed(2)}</td>
-                            </tr>
-                        `;
-                    });
+                    btnSolicitar.disabled = false;
+                    btnSolicitar.style.background = '#10b981'; // Color verde original
+                    btnSolicitar.style.cursor = 'pointer';
+                    btnSolicitar.innerText = '+ Solicitar Línea Virtual';
+                    btnSolicitar.title = '';
                 }
-            } catch (error) {
-                console.error("Error al cargar las líneas:", error);
+                // ----------------------------------------------------
+
+                if(misTerminales.length === 0) {
+                    grid.innerHTML = '<div style="color: #64748b; margin-top: 15px;">No tienes líneas registradas. ¡Solicita tu primera eSIM arriba!</div>';
+                    return;
+                }
+                
+                misTerminales.forEach(term => {
+                    let estadoHTML, botonAccion, claseTarjeta = 'esim-card';
+                    
+                    if(term.esta_encendido) {
+                        estadoHTML = `<span class="status-dot" style="background:#10b981;"></span> Activa`;
+                        botonAccion = `<button class="btn btn-sm btn-off" onclick="cambiarEstado('${term.numero_telefono}', false)">Apagar Red</button>`;
+                    } else {
+                        estadoHTML = `<span class="status-dot" style="background:#ef4444;"></span> Sin Servicio`;
+                        botonAccion = `<button class="btn btn-sm btn-on" onclick="cambiarEstado('${term.numero_telefono}', true)">Encender Red</button>`;
+                    }
+
+                    if (term.estado_aprobacion === 'Pendiente') {
+                        claseTarjeta = 'esim-card pending';
+                        estadoHTML = `<span class="badge-pending">En Revisión por Admin</span>`;
+                        botonAccion = `<button class="btn btn-sm" style="background:rgba(255,255,255,0.1); color:#94a3b8; cursor:not-allowed;" disabled>Bloqueada</button>`;
+                    }
+                        
+                    grid.innerHTML += `
+                        <div class="${claseTarjeta}">
+                            <div class="esim-header">
+                                <div style="font-size: 13px; color: rgba(255,255,255,0.7); text-transform: uppercase;">Central Móvil eSIM</div>
+                                <div class="esim-chip"></div>
+                            </div>
+                            <div class="esim-number">${formatearNumero(term.numero_telefono)}</div>
+                            <div class="esim-footer">
+                                <div>
+                                    <div style="font-size: 11px; color: rgba(255,255,255,0.6); margin-bottom: 3px;">ESTADO / SALDO</div>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <div style="font-size: 13px;">${estadoHTML}</div>
+                                        <div class="esim-balance">$${term.saldo.toFixed(2)}</div>
+                                    </div>
+                                </div>
+                                ${botonAccion}
+                            </div>
+                        </div>
+                    `;
+                });
+            } catch (error) { console.error("Error al cargar líneas:", error); }
+        }
+
+        // --- SOLICITAR NUEVA LÍNEA VIRTUAL (eSIM) CON LECTURA DE ERRORES ---
+        async function solicitarNuevaLinea() {
+            const idUserGuardado = localStorage.getItem('cm_usuario_id');
+            const sufijo = Math.floor(10000000 + Math.random() * 90000000); 
+            const numeroFinal = "55" + sufijo.toString();
+
+            if(!confirm(`Se te asignará el número virtual: ${formatearNumero(numeroFinal)}.\n¿Deseas confirmar la solicitud?`)) return;
+
+            const datos = { numero_telefono: numeroFinal, id_usuario: idUserGuardado };
+
+            try {
+                const res = await fetch('/api/terminales', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify(datos) 
+                });
+                
+                const respuestaBackend = await res.json();
+                
+                // Si el backend lo aceptó (201 Created)
+                if (res.ok) {
+                    alert(`📱 ¡Proceso completado!\n\n${respuestaBackend.message}`);
+                    cargarMisLineas();
+                } else {
+                    // Si el backend lo rechazó (400 Bad Request por Spam)
+                    alert(respuestaBackend.message);
+                }
+                
+            } catch (error) { 
+                alert("Error de red al solicitar la línea."); 
             }
+        }
+        // --- CAMBIAR ESTADO (ENCENDER / APAGAR) ---
+        async function cambiarEstado(numero, nuevoEstado) {
+            try {
+                await fetch(`/api/terminales/${numero}`, { 
+                    method: 'PUT', headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ estado: nuevoEstado }) 
+                });
+                cargarMisLineas();
+            } catch (error) { console.error(error); }
         }
     </script>
 </body>

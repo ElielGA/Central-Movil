@@ -5,7 +5,6 @@
     <title>Mensajería</title>
     <link rel="icon" type="image/png" href="imagenes/llamada-telefonica.png?v=2">
     <style>
-        /* Reseteo Global y Hoja de Estilos Maestra */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { display: flex; background-color: #f8fafc; height: 100vh; overflow: hidden; }
         
@@ -44,6 +43,7 @@
         <div class="sidebar-header">Central Móvil</div>
         <ul class="sidebar-menu">
             <li><a href="perfil.html">Mi Perfil</a></li>
+            <li id="menu-reportes"><a href="reportes.html">Reportes</a></li>
             <li id="menu-usuarios"><a href="usuarios.html">Usuarios</a></li>
             <li id="menu-terminales"><a href="terminales.html">Terminales</a></li>
             <li><a href="recargas.html">Recargas</a></li>
@@ -84,8 +84,39 @@
 
             <div class="card">
                 <div class="card-title">Monitor de Tráfico de Red</div>
+               <div id="cajaBuscador" style="margin-bottom: 15px; display: flex; gap: 10px; align-items: center;">
+
+    <input type="text"
+           id="inputBuscador"
+           class="form-control"
+           placeholder="Buscar registro..."
+           onkeyup="filtrarTabla()"
+           style="max-width: 300px; border-radius: 20px; padding-left: 15px;">
+
+    <button id="btnEditar"
+            onclick="editarMensaje()"
+            style="display:none; background:#10b981; color:white; border:none; padding:10px 15px; border-radius:6px; cursor:pointer;">
+        Editar
+    </button>
+
+    <button id="btnEliminar"
+            onclick="eliminarMensaje()"
+            style="display:none; background:#10b981; color:white; border:none; padding:10px 15px; border-radius:6px; cursor:pointer;">
+        Eliminar
+    </button>
+
+</div>
                 <table>
-                    <thead><tr><th>Origen</th><th>Destino Final</th><th>Mensaje</th><th>Costo</th><th>Ruta</th></tr></thead>
+                  <thead>
+<tr>
+    <th></th>
+    <th>Origen</th>
+    <th>Destino Final</th>
+    <th>Mensaje</th>
+    <th>Costo</th>
+    <th>Ruta</th>
+</tr>
+</thead>
                     <tbody id="tablaAuditoria"></tbody>
                 </table>
             </div>
@@ -93,20 +124,37 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const nombre = localStorage.getItem('cm_usuario_nombre');
-            const rol = localStorage.getItem('cm_usuario_rol');
-            if (!nombre) window.location.href = 'index.html'; 
-            else {
-                document.getElementById('nombreUsuario').innerText = nombre;
-                if (rol === 'CLIENTE') {
-                    const menuUsuarios = document.getElementById('menu-usuarios');
-                    const menuTerminales = document.getElementById('menu-terminales');
-                    if(menuUsuarios) menuUsuarios.style.display = 'none';
-                    if(menuTerminales) menuTerminales.style.display = 'none';
-                }
-            }
-        });
+       
+      document.addEventListener('DOMContentLoaded', () => {
+    const nombre = localStorage.getItem('cm_usuario_nombre');
+    const rol = localStorage.getItem('cm_usuario_rol');
+
+    if (!nombre) {
+        window.location.href = 'index.html';
+        return;
+    }
+
+    document.getElementById('nombreUsuario').innerText = nombre;
+console.log("ROL:", rol);
+
+    if (rol && rol.toUpperCase().includes('ADMIN')) {
+    document.getElementById('btnEditar').style.display = 'inline-block';
+    document.getElementById('btnEliminar').style.display = 'inline-block';
+}
+
+    if (rol === 'CLIENTE') {
+        const menuUsuarios = document.getElementById('menu-usuarios');
+        const menuTerminales = document.getElementById('menu-terminales');
+         const menuReportes = document.getElementById('menu-reportes');
+
+        if(menuUsuarios) menuUsuarios.style.display = 'none';
+        if(menuTerminales) menuTerminales.style.display = 'none';
+        if(menuReportes) menuReportes.style.display = 'none';
+    }
+
+    cargarMisLineas();
+    cargarTrafico();
+});
 
         function cerrarSesion() { localStorage.clear(); window.location.href = 'index.html'; }
 
@@ -140,29 +188,23 @@
                 const nombreUser = localStorage.getItem('cm_usuario_nombre');
                 const rolUser = localStorage.getItem('cm_usuario_rol');
 
-                // 1. Traer todos los mensajes de la red
                 const resMensajes = await fetch('/api/mensajes');
                 let mensajes = await resMensajes.json();
 
-                // 2. Filtro de Privacidad para Clientes
                 if (rolUser === 'CLIENTE') {
-                    // Obtenemos las terminales para saber cuáles le pertenecen
+                  
                     const resTerminales = await fetch('/api/terminales');
                     const terminales = await resTerminales.json();
                     
-                    // Extraemos un arreglo solo con los números de este cliente
                     const misNumeros = terminales
                         .filter(t => t.nombre === nombreUser)
                         .map(t => t.numero_telefono);
-
-                    // Filtramos la bitácora: solo ver enviados o recibidos por él
                     mensajes = mensajes.filter(m => 
                         misNumeros.includes(m.numero_origen) || 
                         misNumeros.includes(m.numero_destino)
                     );
                 }
 
-                // 3. Pintar la tabla
                 const tabla = document.getElementById('tablaAuditoria');
                 tabla.innerHTML = '';
                 
@@ -175,6 +217,12 @@
                     let badgeDesvio = m.es_desviado ? '<span class="badge-warning">RE-ENRUTADO</span>' : '<span style="color: #64748b; font-size: 11px;">Directa</span>';
                     tabla.innerHTML += `
                         <tr>
+                            
+    <td>
+        <input type="radio"
+               name="mensajeSeleccionado"
+               value="${m.id_mensaje}">
+    </td>
                             <td style="font-weight: 500; color: #1e293b;">${m.numero_origen}</td>
                             <td style="font-weight: 500; color: #1e293b;">${m.numero_destino}</td>
                             <td style="color: #475569; font-style: italic;">"${m.cuerpo.substring(0, 30)}..."</td>
@@ -201,6 +249,91 @@
         });
 
         cargarMisLineas(); cargarTrafico();
+       
+        function filtrarTabla() {
+            const textoBuscado = document.getElementById('inputBuscador').value.toLowerCase();
+            const filas = document.querySelectorAll('tbody tr'); // Selecciona todas las filas de la tabla
+
+            filas.forEach(fila => {
+                
+                const contenidoFila = fila.innerText.toLowerCase();
+               if(contenidoFila.includes(textoBuscado)) {
+                    fila.style.display = '';
+                } else {
+                    fila.style.display = 'none';
+                }
+            });
+        }
+        function obtenerMensajeSeleccionado() {
+    const seleccionado = document.querySelector(
+        'input[name="mensajeSeleccionado"]:checked'
+    );
+
+    if (!seleccionado) {
+        alert("Seleccione un mensaje.");
+        return null;
+    }
+
+    return seleccionado.value;
+}
+async function editarMensaje() {
+
+    const id = obtenerMensajeSeleccionado();
+
+    if (!id) return;
+
+    const nuevoTexto = prompt("Ingrese el nuevo mensaje:");
+
+    if (!nuevoTexto) return;
+
+    try {
+
+        const respuesta = await fetch(`/api/mensajes/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                cuerpo: nuevoTexto
+            })
+        });
+
+        if (respuesta.ok) {
+            alert("Mensaje actualizado.");
+            cargarTrafico();
+        } else {
+            alert("Error al actualizar.");
+        }
+
+    } catch(error) {
+        console.error(error);
+    }
+}
+async function eliminarMensaje() {
+
+    const id = obtenerMensajeSeleccionado();
+
+    if (!id) return;
+
+    if (!confirm("¿Desea eliminar este mensaje?")) return;
+
+    try {
+
+        const respuesta = await fetch(`/api/mensajes/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (respuesta.ok) {
+            alert("Mensaje eliminado.");
+            cargarTrafico();
+        } else {
+            alert("Error al eliminar.");
+        }
+
+    } catch(error) {
+        console.error(error);
+    }
+}
     </script>
 </body>
 </html>

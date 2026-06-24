@@ -5,7 +5,7 @@
     <title>Desvíos</title>
     <link rel="icon" type="image/png" href="imagenes/llamada-telefonica.png?v=2">
     <style>
-        /* Reseteo Global y Hoja de Estilos Maestra */
+       
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { display: flex; background-color: #f8fafc; height: 100vh; overflow: hidden; }
         
@@ -45,7 +45,8 @@
     <div class="sidebar">
         <div class="sidebar-header">Central Móvil</div>
         <ul class="sidebar-menu">
-            <li><a href="perfil.html">Mi Perfil</a></li>
+           <li><a href="perfil.html">Mi Perfil</a></li>
+            <li id="menu-reportes"><a href="reportes.html">Reportes</a></li>
             <li id="menu-usuarios"><a href="usuarios.html">Usuarios</a></li>
             <li id="menu-terminales"><a href="terminales.html">Terminales</a></li>
             <li><a href="recargas.html">Recargas</a></li>
@@ -86,12 +87,43 @@
                     <p style="font-size: 11px; color: #64748b; margin-top: 10px;">* El desvío se aplicará de forma inmediata en la red.</p>
                     <button type="submit" class="btn-primary">ACTIVAR DESVÍO</button>
                 </form>
+                
             </div>
 
             <div class="card">
                 <div class="card-title">Tus Desvíos Activos</div>
+                <div id="cajaBuscador" style="margin-bottom:15px; display:flex; gap:10px; align-items:center;">
+
+    <input type="text"
+           id="inputBuscador"
+           class="form-control"
+           placeholder="Buscar registro..."
+           onkeyup="filtrarTabla()"
+           style="max-width:300px; border-radius:20px; padding-left:15px;">
+
+    <button id="btnEditar"
+            onclick="editarDesvio()"
+            style="display:none; background:#10b981; color:white; border:none; padding:10px 15px; border-radius:6px; cursor:pointer;">
+        Editar
+    </button>
+
+    <button id="btnEliminar"
+            onclick="eliminarDesvio()"
+            style="display:none; background:#10b981; color:white; border:none; padding:10px 15px; border-radius:6px; cursor:pointer;">
+        Eliminar
+    </button>
+
+</div>
                 <table>
-                    <thead><tr><th>Línea Origen</th><th>Línea Destino</th><th>Estado</th><th>Acciones</th></tr></thead>
+                  <thead>
+<tr>
+    <th></th>
+    <th>Línea Origen</th>
+    <th>Línea Destino</th>
+    <th>Estado</th>
+    <th>Acciones</th>
+</tr>
+</thead>
                     <tbody id="tablaDesvios"></tbody>
                 </table>
             </div>
@@ -99,7 +131,7 @@
     </div>
 
     <script>
-        // 1. Carga inicial y Seguridad
+      
         document.addEventListener('DOMContentLoaded', () => {
             const nombre = localStorage.getItem('cm_usuario_nombre');
             const rol = localStorage.getItem('cm_usuario_rol');
@@ -107,14 +139,25 @@
             if (!nombre) {
                 window.location.href = 'index.html'; 
                 return;
+            } else {
+            
+                document.getElementById('nombreUsuario').innerText = nombre;
             }
             
-            // Ocultar menús administrativos si es cliente
+            if (rol && rol.toUpperCase().includes('ADMIN')) {
+    document.getElementById('btnEditar').style.display = 'inline-block';
+    document.getElementById('btnEliminar').style.display = 'inline-block';
+}
             if (rol === 'CLIENTE') {
                 const menuUsuarios = document.getElementById('menu-usuarios');
                 const menuTerminales = document.getElementById('menu-terminales');
+                const menuReportes = document.getElementById('menu-reportes');
+                const cajaBuscador = document.getElementById('cajaBuscador');
+                
                 if(menuUsuarios) menuUsuarios.style.display = 'none';
                 if(menuTerminales) menuTerminales.style.display = 'none';
+                if(menuReportes) menuReportes.style.display = 'none';
+                if(cajaBuscador) cajaBuscador.style.display = 'none';
             }
 
             cargarTerminalesParaSelect();
@@ -126,7 +169,6 @@
             window.location.href = 'index.html'; 
         }
 
-        // 2. Cargar selectores (Filtro aplicado)
         async function cargarTerminalesParaSelect() {
             try {
                 const nombreUser = localStorage.getItem('cm_usuario_nombre');
@@ -139,7 +181,6 @@
                     terminales = terminales.filter(t => t.nombre === nombreUser);
                 }
 
-                // Asume que tu select tiene el id "origenSelect" o cámbialo si usas otro
                 const select = document.querySelector('select'); 
                 select.innerHTML = '<option value="">Seleccione una línea...</option>';
                 
@@ -153,7 +194,6 @@
             } catch (error) { console.error(error); }
         }
 
-        // 3. Cargar tabla de desvíos (Filtro aplicado)
         async function cargarDesvios() {
             try {
                 const nombreUser = localStorage.getItem('cm_usuario_nombre');
@@ -162,7 +202,6 @@
                 const respuesta = await fetch('/api/desvios');
                 let desvios = await respuesta.json();
 
-                // EL FILTRO MÁGICO DE PRIVACIDAD
                 if (rolUser === 'CLIENTE') {
                     const resTerminales = await fetch('/api/terminales');
                     const terminales = await resTerminales.json();
@@ -173,9 +212,7 @@
 
                     desvios = desvios.filter(d => misNumeros.includes(d.origen));
                 }
-
-                // Asume que tu tbody tiene un id como "tablaDesvios" (búscalo por tag si no tiene id)
-                const tabla = document.querySelector('tbody');
+             const tabla = document.querySelector('tbody');
                 tabla.innerHTML = '';
 
                 if (desvios.length === 0) {
@@ -185,23 +222,45 @@
 
                 desvios.forEach(d => {
                     tabla.innerHTML += `
-                        <tr>
-                            <td style="font-weight: 500; color: #1e293b;">${d.origen}</td>
-                            <td style="font-weight: bold; color: #64748b;">${d.destino}</td>
-                            <td style="color: #10b981; font-weight: 600;"><span style="height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; background-color: #10b981;"></span> Activo</td>
-                            <td><button style="border: 1px solid #ef4444; background: transparent; color: #ef4444; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;" onclick="desactivarDesvio('${d.origen}')">Desactivar</button></td>
-                        </tr>
-                    `;
+<tr>
+
+    <td>
+        <input type="radio"
+               name="desvioSeleccionado"
+               value="${d.origen}">
+    </td>
+
+    <td style="font-weight:500;color:#1e293b;">
+        ${d.origen}
+    </td>
+
+    <td style="font-weight:bold;color:#64748b;">
+        ${d.destino}
+    </td>
+
+    <td style="color:#10b981;font-weight:600;">
+        <span style="height:8px;width:8px;border-radius:50%;display:inline-block;margin-right:6px;background-color:#10b981;"></span>
+        Activo
+    </td>
+
+    <td>
+        <button style="border:1px solid #ef4444;background:transparent;color:#ef4444;padding:6px 12px;border-radius:4px;cursor:pointer;font-weight:bold;"
+                onclick="desactivarDesvio('${d.origen}')">
+            Desactivar
+        </button>
+    </td>
+
+</tr>
+`;
                 });
             } catch (error) { 
                 console.error("Error al cargar los desvíos:", error); 
             }
         }
 
-        // 4. Activar un nuevo desvío
         document.querySelector('form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            // Toma el primer select (origen) y el primer input de texto (destino)
+            
             const origen = document.querySelector('select').value;
             const destinoInputs = document.querySelectorAll('input[type="text"], input[type="number"]');
             const destino = destinoInputs[0].value; 
@@ -225,7 +284,6 @@
             }
         });
 
-        // 5. Desactivar un desvío
         async function desactivarDesvio(origen) {
             if(!confirm(`¿Estás seguro de quitar el desvío de la línea ${origen}?`)) return;
             try {
@@ -236,6 +294,94 @@
                 console.error(error);
             }
         }
+        function filtrarTabla() {
+            const textoBuscado = document.getElementById('inputBuscador').value.toLowerCase();
+            const filas = document.querySelectorAll('tbody tr'); 
+
+            filas.forEach(fila => {
+                const contenidoFila = fila.innerText.toLowerCase();
+                
+                if(contenidoFila.includes(textoBuscado)) {
+                    fila.style.display = '';
+                } else {
+                    fila.style.display = 'none';
+                }
+            });
+        }
+        
+        function obtenerDesvioSeleccionado() {
+
+    const seleccionado = document.querySelector(
+        'input[name="desvioSeleccionado"]:checked'
+    );
+
+    if (!seleccionado) {
+        alert("Seleccione un desvío.");
+        return null;
+    }
+
+    return seleccionado.value;
+}
+
+async function editarDesvio() {
+
+    const origen = obtenerDesvioSeleccionado();
+
+    if (!origen) return;
+
+    const nuevoDestino = prompt("Nuevo número destino:");
+
+    if (!nuevoDestino) return;
+
+    try {
+
+        const res = await fetch(`/api/desvios/${origen}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                destino: nuevoDestino
+            })
+        });
+
+        if (res.ok) {
+            alert("Desvío actualizado.");
+            cargarDesvios();
+        } else {
+            alert("Error al actualizar.");
+        }
+
+    } catch(error) {
+        console.error(error);
+    }
+}
+
+async function eliminarDesvio() {
+
+    const origen = obtenerDesvioSeleccionado();
+
+    if (!origen) return;
+
+    if (!confirm("¿Desea eliminar este desvío?")) return;
+
+    try {
+
+        const res = await fetch(`/api/desvios/${origen}`, {
+            method: 'DELETE'
+        });
+
+        if (res.ok) {
+            alert("Desvío eliminado.");
+            cargarDesvios();
+        } else {
+            alert("Error al eliminar.");
+        }
+
+    } catch(error) {
+        console.error(error);
+    }
+}
     </script>
 </body>
 </html>

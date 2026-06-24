@@ -13,7 +13,6 @@ GO
 USE CentralMovilDB;
 GO
 
--- 2. ELIMINACIÓN DE TABLAS PREVIAS (Garantiza idempotencia en la instalación)
 IF OBJECT_ID('dbo.Mensaje', 'U')    IS NOT NULL DROP TABLE dbo.Mensaje;
 IF OBJECT_ID('dbo.Recarga', 'U')    IS NOT NULL DROP TABLE dbo.Recarga;
 IF OBJECT_ID('dbo.Terminal', 'U')   IS NOT NULL DROP TABLE dbo.Terminal;
@@ -21,16 +20,12 @@ IF OBJECT_ID('dbo.Credencial', 'U') IS NOT NULL DROP TABLE dbo.Credencial;
 IF OBJECT_ID('dbo.Usuario', 'U')    IS NOT NULL DROP TABLE dbo.Usuario;
 GO
 
--- 3. CREACIÓN DE LA ARQUITECTURA DE TABLAS
-
--- Capa Maestra: Entidades del Sistema
 CREATE TABLE Usuario (
     id_usuario INT IDENTITY(1,1) PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     fecha_registro DATETIME DEFAULT GETDATE()
 );
 
--- Capa de Control de Acceso: Seguridad por Roles (RBAC)
 CREATE TABLE Credencial (
     username VARCHAR(50) PRIMARY KEY,
     password_hash VARCHAR(255) NOT NULL,
@@ -41,7 +36,6 @@ CREATE TABLE Credencial (
     CONSTRAINT CHK_Rol CHECK (rol IN ('ADMINISTRADOR', 'CLIENTE'))
 );
 
--- Capa de Infraestructura: Terminales y Enrutamiento
 CREATE TABLE Terminal (
     numero_telefono VARCHAR(15) PRIMARY KEY,
     saldo DECIMAL(10,2) NOT NULL DEFAULT 0.00,
@@ -55,7 +49,6 @@ CREATE TABLE Terminal (
     CONSTRAINT CHK_Saldo_Minimo CHECK (saldo >= 0.00)
 );
 
--- Capa Transaccional: Bitácora Financiera
 CREATE TABLE Recarga (
     id_recarga VARCHAR(20) PRIMARY KEY,
     monto DECIMAL(10,2) NOT NULL,
@@ -67,7 +60,6 @@ CREATE TABLE Recarga (
         REFERENCES Terminal(numero_telefono) ON DELETE CASCADE
 );
 
--- Capa Transaccional: Bitácora de Tráfico de Red (Mensajería)
 CREATE TABLE Mensaje (
     id_mensaje VARCHAR(20) PRIMARY KEY,
     cuerpo VARCHAR(500) NOT NULL,
@@ -86,23 +78,18 @@ CREATE TABLE Mensaje (
 );
 GO
 
--- 4. INSERCIÓN DE DATOS SEMILLA (Entorno inicial de ejecución)
-
--- Registro de usuarios de prueba
 INSERT INTO Usuario (nombre) VALUES ('Administrador General');
 DECLARE @idAdmin INT = SCOPE_IDENTITY();
 
 INSERT INTO Usuario (nombre) VALUES ('Francisco Eliel Guerrero Aguilar');
 DECLARE @idUser INT = SCOPE_IDENTITY();
 
--- Registro de credenciales seguras vinculadas
 INSERT INTO Credencial (username, password_hash, rol, id_usuario) 
 VALUES ('Admin', '1234', 'ADMINISTRADOR', @idAdmin);
 
 INSERT INTO Credencial (username, password_hash, rol, id_usuario) 
 VALUES ('ElielGA', 'cliente1', 'CLIENTE', @idUser);
 
--- Asignación inicial de infraestructura telefónica
 INSERT INTO Terminal (numero_telefono, saldo, esta_encendido, id_usuario)
 VALUES ('5512345678', 500.00, 1, @idUser);
 

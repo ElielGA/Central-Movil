@@ -2,71 +2,87 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Gestión de Terminales</title>
-    <link rel="icon" type="image/png" href="imagenes/llamada-telefonica.png?v=2">
+    <title>Gestión de Terminales | Central Móvil</title>
     <style>
-        /* Reseteo Global */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { display: flex; background-color: #f8fafc; height: 100vh; overflow: hidden; }
-        
-        /* Sidebar Estandarizado (Diseño Oscuro) */
-        .sidebar { width: 250px; background-color: #0f172a; color: white; height: 100vh; display: flex; flex-direction: column; }
+        body { display: flex; background-color: #f4f7f9; height: 100vh; overflow: hidden; }
+       .sidebar { width: 250px; background-color: #0f172a !important; color: white; height: 100vh; display: flex; flex-direction: column; }
         .sidebar-header { padding: 20px; font-size: 18px; font-weight: bold; color: #10b981; border-bottom: 1px solid #1e293b; }
         .sidebar-menu { list-style: none; padding-top: 10px; flex: 1; }
         .sidebar-menu li a { display: block; padding: 15px 20px; color: #cbd5e1; text-decoration: none; font-size: 14px; transition: 0.3s; }
         .sidebar-menu li a:hover { color: white; background-color: #1e293b; }
         .sidebar-menu li a.active { background-color: #10b981; color: white; border-radius: 0 25px 25px 0; margin-right: 20px; }
-        
-        /* Área Principal */
+          
         .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
-        .topbar { background-color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
+        .topbar { background-color: white; padding: 18px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
         
-        /* Contenedores y Tarjetas */
-        .dashboard-container { padding: 30px; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .section-header h2 { color: #1e293b; font-size: 22px; }
-        .section-header p { color: #64748b; font-size: 14px; margin-top: 5px; }
+        .dashboard-container { padding: 30px 40px; }
+        .section-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; }
+        .section-header h2 { color: #0f172a; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+        .section-header p { color: #64748b; font-size: 14px; margin-top: 6px; }
         
         .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
-        .kpi-card { background: white; padding: 20px; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; }
-        .kpi-info h4 { color: #64748b; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; }
-        .kpi-info span { font-size: 28px; font-weight: bold; color: #0f172a; }
+        .kpi-card { background: white; padding: 22px; border-radius: 10px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; overflow: hidden; }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background-color: #e2e8f0; }
+        .kpi-card.kpi-on::before { background-color: #10b981; }
+        .kpi-card.kpi-off::before { background-color: #ef4444; }
+        .kpi-card.kpi-rev::before { background-color: #f59e0b; }
+        .kpi-info h4 { color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .kpi-info span { font-size: 28px; font-weight: 700; color: #0f172a; }
         
-        .card { background: white; padding: 25px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .card { background: white; padding: 25px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
         
-        /* Formularios y Botones */
-        .form-inline { display: flex; gap: 10px; margin-bottom: 20px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
-        .form-control { padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; width: 100%; }
-        .form-control:focus { outline: none; border-color: #10b981; }
+        .form-inline { display: flex; gap: 15px; margin-bottom: 25px; padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1; align-items: center; }
+        .form-control { padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; width: 100%; transition: border-color 0.2s; }
+        /* Modificado: enfoque en verde en lugar de azul */
+        .form-control:focus { outline: none; border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
         
-        .btn { padding: 8px 16px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; font-size: 13px; }
-        .btn-primary { background-color: #10b981; color: white; }
-        .btn-danger { background-color: #0f172a; color: white; }
+        .btn { padding: 9px 18px; border-radius: 6px; font-weight: 600; border: none; cursor: pointer; font-size: 13px; transition: all 0.2s; white-space: nowrap; }
+        .btn-success { background-color: #10b981; color: white; }
+        .btn-success:hover { background-color: #059669; }
+        .btn-danger { background-color: #ef4444; color: white; } 
+        .btn-danger:hover { background-color: #dc2626; }
+        .btn-outline { background-color: transparent; border: 1px solid #cbd5e1; color: #475569; }
+        .btn-outline:hover { background-color: #f1f5f9; color: #0f172a; border-color: #94a3b8; }
+        .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+        /* Nuevos botones de acción respetando colores (sin azul) */
+        .btn-toggle-on { background-color: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-weight: 600; }
+        .btn-toggle-on:hover { background-color: #dcfce7; border-color: #86efac; }
+        .btn-toggle-off { background-color: #fef2f2; border: 1px solid #fecaca; color: #991b1b; font-weight: 600; }
+        .btn-toggle-off:hover { background-color: #fee2e2; border-color: #fca5a5; }
         
-        /* Tablas */
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th, td { padding: 15px 10px; text-align: left; border-bottom: 1px solid #f1f5f9; }
-        th { color: #64748b; font-size: 12px; text-transform: uppercase; }
+        /* Estilos de Tabla y Acordeón */
+        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14px; }
+        th { color: #64748b; font-size: 12px; text-transform: uppercase; font-weight: 600; background-color: #f8fafc; padding: 14px 15px; border-bottom: 2px solid #e2e8f0; text-align: left; letter-spacing: 0.5px; }
+        td { padding: 14px 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
         
-        /* Indicadores */
-        .status { display: flex; align-items: center; gap: 6px; font-weight: 500; }
-        .dot { height: 8px; width: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-        .bg-green { background-color: #10b981; }
-        .text-green { color: #10b981; }
-        .bg-red { background-color: #ef4444; }
-        .text-red { color: #ef4444; }
+        .row-usuario { background-color: #ffffff; cursor: pointer; transition: background-color 0.2s; }
+        .row-usuario:hover { background-color: #f8fafc; }
+        .row-usuario td { border-bottom: 1px solid #e2e8f0; }
+        /* Modificado: La línea lateral ahora es verde (#10b981) en lugar de azul */
+        .row-usuario td:first-child { border-left: 4px solid #10b981; border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
         
-        .info-alert { background-color: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px 20px; border-radius: 8px; margin-top: 20px; display: flex; gap: 20px; align-items: center; font-size: 13px; color: #166534; }
+        .row-linea { display: none; background-color: #fcfcfd; }
+        .row-linea.visible { display: table-row; }
+        .row-linea td:first-child { padding-left: 30px; } 
+        
+        .toggle-icon { display: inline-flex; justify-content: center; align-items: center; width: 24px; height: 24px; border-radius: 4px; background-color: #e2e8f0; color: #475569; font-weight: bold; font-family: monospace; font-size: 14px; transition: 0.2s; }
+        .row-usuario:hover .toggle-icon { background-color: #cbd5e1; color: #0f172a; }
+        
+        .badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+        .badge-count { background-color: #e2e8f0; color: #475569; font-size: 12px; }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
+   <div class="sidebar">
         <div class="sidebar-header">Central Móvil</div>
         <ul class="sidebar-menu">
             <li><a href="perfil.html">Mi Perfil</a></li>
+            <li><a href="reportes.html">Reportes</a></li>
             <li id="menu-usuarios"><a href="usuarios.html">Usuarios</a></li>
-            <li id="menu-terminales"><a href="terminales.html" class="active">Terminales</a></li>
+            <li id="menu-terminales"><a href="terminales.html"class="active">Terminales</a></li>
             <li><a href="recargas.html">Recargas</a></li>
             <li><a href="desvios.html">Desvíos</a></li>
             <li><a href="mensajeria.html">Mensajería</a></li>
@@ -79,65 +95,77 @@
     <div class="main-content">
         <div class="topbar">
             <div></div>
-            <div id="nombreUsuario" style="font-weight: bold; color: #1e293b; font-size: 15px;">Cargando...</div>
+           <div id="nombreUsuario" style="font-weight: bold; color: #1e293b; font-size: 15px;">Cargando...</div>
         </div>
 
         <div class="dashboard-container">
             <div class="section-header">
                 <div>
                     <h2>Gestión de Terminales</h2>
-                    <p>Enciende o apaga tus teléfonos, consulta su estado y administra tus terminales registradas.</p>
+                    <p>Administración de líneas telefónicas agrupadas por propietario.</p>
                 </div>
-                <button class="btn btn-primary" onclick="toggleForm()">+ Registrar nueva terminal</button>
+                <button id="btnAbrirFormulario" class="btn btn-success" onclick="toggleForm()">+ Asignar Línea</button>
             </div>
 
             <form id="formTerminal" class="form-inline" style="display: none;">
-                <input type="text" id="num_telefono" class="form-control" placeholder="Número (10 dígitos)" required>
-                <input type="number" id="id_usuario" class="form-control" placeholder="ID Propietario" required>
-                <button type="submit" class="btn btn-primary">Guardar Línea</button>
+                <div id="inputsAdmin" style="display: flex; gap: 10px; width: 100%;">
+                    <input type="text" id="num_telefono" class="form-control" placeholder="Número Telefónico (10 dígitos)">
+                    <input type="number" id="id_usuario" class="form-control" placeholder="ID del Propietario">
+                </div>
+                
+                <div id="textoCliente" style="display: none; width: 100%; color: #64748b; font-size: 14px;">
+                    Se generará y asignará una línea virtual (eSIM) a la cuenta activa de manera automática.
+                </div>
+                
+                <button type="submit" id="btnGuardarLinea" class="btn btn-success">Procesar Registro</button>
             </form>
 
             <div class="kpi-grid">
                 <div class="kpi-card">
-                    <div class="kpi-info"><h4>Total de terminales</h4><span id="kpi-total">0</span></div>
-                    <div style="font-size: 24px;"></div>
+                    <div class="kpi-info"><h4>Total Registradas</h4><span id="kpi-total">0</span></div>
                 </div>
-                <div class="kpi-card">
-                    <div class="kpi-info"><h4>Conectadas</h4><span id="kpi-conectadas" class="text-green">0</span></div>
-                    <div style="width: 15px; height: 15px;"></div>
+                <div class="kpi-card kpi-on">
+                    <div class="kpi-info"><h4>Operativas</h4><span id="kpi-conectadas">0</span></div>
                 </div>
-                <div class="kpi-card">
-                    <div class="kpi-info"><h4>Desconectadas</h4><span id="kpi-desconectadas" class="text-red">0</span></div>
-                    <div style="width: 15px; height: 15px;"></div>
+                <div class="kpi-card kpi-off">
+                    <div class="kpi-info"><h4>Sin Servicio</h4><span id="kpi-desconectadas">0</span></div>
                 </div>
-                <div class="kpi-card">
-                    <div class="kpi-info"><h4>Líneas Activas</h4><span id="kpi-activas">0</span></div>
-                    <div style="font-size: 24px;"></div>
+                <div class="kpi-card kpi-rev">
+                    <div class="kpi-info"><h4>En Revisión</h4><span id="kpi-pendientes">0</span></div>
                 </div>
             </div>
 
             <div class="card">
-                <table>
+                <div id="cajaBuscador" style="margin-bottom: 25px; display: flex; justify-content: flex-start; align-items: center;">
+                    <input type="text" id="inputBuscador" class="form-control" placeholder="Buscar por número o propietario..." onkeyup="filtrarTabla()" style="max-width: 350px; margin-right: auto;">
+                
+                    <button class="btn btn-success" style="display:none; margin-right:10px;" id="btnEditarGlobal" onclick="editarTerminalGlobal()">
+                        Reasignar Propietario
+                    </button>
+
+                    <button class="btn btn-danger" style="display:none;" id="btnEliminarGlobal" onclick="eliminarTerminalGlobal()">
+                        Eliminar Registro
+                    </button>
+                </div>
+
+                <table id="tablaPrincipal">
                     <thead>
                         <tr>
-                            <th>Terminal / Usuario</th>
-                            <th>Número</th>
-                            <th>Estado</th>
-                            <th>Saldo</th>
-                            <th>Acción</th>
+                            <th style="width: 40px; text-align: center;">ID</th>
+                            <th>Línea / Propietario</th>
+                            <th>Estado de Red</th>
+                            <th>Saldo (MXN)</th>
+                            <th>Acciones Operativas</th>
                         </tr>
                     </thead>
                     <tbody id="tablaTerminales">
-                        </tbody>
+                    </tbody>
                 </table>
             </div>
-
-            
         </div>
     </div>
 
     <script>
-        // Control de Sesión y Roles (RBAC)
         document.addEventListener('DOMContentLoaded', () => {
             const nombreGuardado = localStorage.getItem('cm_usuario_nombre');
             const rolGuardado = localStorage.getItem('cm_usuario_rol');
@@ -146,21 +174,28 @@
                 window.location.href = 'index.html'; 
             } else {
                 document.getElementById('nombreUsuario').innerText = nombreGuardado;
+
+                if (rolGuardado && rolGuardado.toUpperCase().includes('ADMIN')) {
+                    document.getElementById('btnEditarGlobal').style.display = 'inline-block';
+                    document.getElementById('btnEliminarGlobal').style.display = 'inline-block';
+                }
                 
                 if (rolGuardado === 'CLIENTE') {
-                    const menuUsuarios = document.getElementById('menu-usuarios');
-                    const menuTerminales = document.getElementById('menu-terminales');
-                    if(menuUsuarios) menuUsuarios.style.display = 'none';
-                    if(menuTerminales) menuTerminales.style.display = 'none';
+                    document.getElementById('menu-usuarios').style.display = 'none';
+                    document.getElementById('menu-terminales').style.display = 'none';
+                    document.getElementById('cajaBuscador').style.display = 'none';
+                    
+                    document.getElementById('btnAbrirFormulario').innerText = 'Solicitar Nueva eSIM';
+                    document.getElementById('inputsAdmin').style.display = 'none';
+                    document.getElementById('textoCliente').style.display = 'block';
+                    document.getElementById('btnGuardarLinea').innerText = 'Generar y Asignar';
                 }
             }
+            cargarDashboard();
         });
 
-        function cerrarSesion() {
-            localStorage.clear(); 
-            window.location.href = 'index.html'; 
-        }
-
+        function cerrarSesion() { localStorage.clear(); window.location.href = 'index.html'; }
+        
         function toggleForm() {
             const form = document.getElementById('formTerminal');
             form.style.display = form.style.display === 'none' ? 'flex' : 'none';
@@ -168,73 +203,253 @@
 
         async function cargarDashboard() {
             try {
+                const rolGuardado = localStorage.getItem('cm_usuario_rol');
                 const respuesta = await fetch('/api/terminales');
                 const terminales = await respuesta.json();
-                let conectadas = 0; let desconectadas = 0;
-                const tabla = document.getElementById('tablaTerminales');
-                tabla.innerHTML = ''; 
                 
-                terminales.forEach(term => {
-                    let estadoHTML, botonAccion;
-                    if(term.esta_encendido) {
-                        conectadas++;
-                        estadoHTML = `<div class="status text-black"><span class="black"></span> Conectado</div>`;
-                        botonAccion = `<button class="btn btn-danger" onclick="cambiarEstado('${term.numero_telefono}', false)">Apagar</button>`;
-                    } else {
-                        desconectadas++;
-                        estadoHTML = `<div class="status text-red"><span class="bg-red"></span> Desconectado</div>`;
-                        botonAccion = `<button class="btn btn-primary" onclick="cambiarEstado('${term.numero_telefono}', true)">Encender</button>`;
-                    }
-                        
-                    tabla.innerHTML += `
-                        <tr>
-                            <td>
-                                <div style="font-weight: bold; color: #1e293b;">${term.nombre}</div>
-                                <div style="font-size: 12px; color: #64748b;">Línea registrada</div>
+                let conectadas = 0, desconectadas = 0, pendientes = 0;
+                const tabla = document.getElementById('tablaTerminales');
+                let htmlContenido = '';
+
+                const agrupadas = terminales.reduce((acc, obj) => {
+                    if (!acc[obj.nombre]) acc[obj.nombre] = [];
+                    acc[obj.nombre].push(obj);
+                    return acc;
+                }, {});
+
+                let contadorUsuarios = 0;
+
+                for (const [nombre, lineas] of Object.entries(agrupadas)) {
+                    contadorUsuarios++;
+                    const idFila = `grupo_${contadorUsuarios}`;
+
+                    htmlContenido += `
+                        <tr class="row-usuario" id="master_${idFila}" data-nombre="${nombre.toLowerCase()}" onclick="toggleLineas('${idFila}')">
+                            <td colspan="5">
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <span id="icon_${idFila}" class="toggle-icon">+</span> 
+                                    <span style="font-weight: 600; color: #1e293b; font-size: 15px;">${nombre}</span> 
+                                    <span class="badge badge-count">${lineas.length} LÍNEA(S)</span>
+                                </div>
                             </td>
-                            <td style="font-weight: 500;">${term.numero_telefono}</td>
-                            <td>${estadoHTML}</td>
-                            <td>$${term.saldo.toFixed(2)}</td>
-                            <td>${botonAccion}</td>
                         </tr>
                     `;
-                });
+
+                    lineas.forEach(term => {
+                        let estadoTexto = "";
+                        let botonAccion = "";
+                        let botonAprobar = "";
+                        
+                        // Modificado: Ahora los estados son simple texto negro.
+                        if (term.estado_aprobacion === 'Pendiente') {
+                            pendientes++;
+                            estadoTexto = "Revisión pendiente"; // Aparece en la columna Estado de Red
+                            
+                            if (rolGuardado !== 'CLIENTE') {
+                                botonAprobar = `<button class="btn btn-sm btn-success" onclick="aprobarLinea('${term.numero_telefono}')">Autorizar Alta</button>`;
+                            }
+                        } else {
+                            if(term.esta_encendido) {
+                                conectadas++;
+                                estadoTexto = "Operativa";
+                                // Botón nuevo de desconexión sin color azul
+                                botonAccion = `<button class="btn btn-sm btn-toggle-off" onclick="cambiarEstado('${term.numero_telefono}', false)">Desconectar</button>`;
+                            } else {
+                                desconectadas++;
+                                estadoTexto = "Sin servicio";
+                                // Botón nuevo de conexión sin color azul
+                                botonAccion = `<button class="btn btn-sm btn-toggle-on" onclick="cambiarEstado('${term.numero_telefono}', true)">Conectar</button>`;
+                            }
+                        }
+
+                        htmlContenido += `
+                            <tr class="row-linea ${idFila}">
+                                <td style="text-align: center;">
+                                    <input type="radio" name="terminalSeleccionada" value="${term.numero_telefono}">
+                                </td>
+                                <td>
+                                    <div style="font-family: 'Segoe UI', monospace; font-size: 15px; font-weight: 600; color: #334155;">${term.numero_telefono}</div>
+                                </td>
+                                <td style="font-weight: 500; color: #0f172a;">${estadoTexto}</td>
+                                <td style="font-weight: 600; color: #0f172a;">$${term.saldo.toFixed(2)}</td>
+                                <td>
+                                    <div style="display: flex; gap: 8px;">
+                                        ${botonAccion}
+                                        ${botonAprobar}
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                tabla.innerHTML = htmlContenido;
 
                 document.getElementById('kpi-total').innerText = terminales.length;
                 document.getElementById('kpi-conectadas').innerText = conectadas;
                 document.getElementById('kpi-desconectadas').innerText = desconectadas;
-                document.getElementById('kpi-activas').innerText = conectadas;
-            } catch (error) {
-                console.error("Error al cargar dashboard:", error);
-            }
+                document.getElementById('kpi-pendientes').innerText = pendientes;
+            } catch (error) { console.error(error); }
         }
 
-        async function cambiarEstado(numero, nuevoEstado) {
-            await fetch(`/api/terminales/${numero}`, { 
-                method: 'PUT', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ estado: nuevoEstado }) 
+        function toggleLineas(claseFila) {
+            const filas = document.querySelectorAll('.' + claseFila);
+            const icono = document.getElementById('icon_' + claseFila);
+            let estaOculto = true;
+            
+            filas.forEach(fila => {
+                if (fila.classList.contains('visible')) {
+                    fila.classList.remove('visible');
+                    estaOculto = false;
+                } else {
+                    fila.classList.add('visible');
+                }
             });
-            cargarDashboard();
+            
+            icono.innerText = estaOculto ? '+' : '-';
+        }
+
+        function filtrarTabla() {
+            const textoBuscado = document.getElementById('inputBuscador').value.toLowerCase().trim();
+            const masterRows = document.querySelectorAll('.row-usuario');
+
+            if (textoBuscado === '') {
+                masterRows.forEach(master => {
+                    master.style.display = '';
+                    const idFila = master.id.replace('master_', '');
+                    document.getElementById('icon_' + idFila).innerText = '+';
+                    document.querySelectorAll('.row-linea.' + idFila).forEach(linea => {
+                        linea.classList.remove('visible');
+                        linea.style.display = '';
+                    });
+                });
+                return;
+            }
+
+            masterRows.forEach(master => {
+                const nombrePropietario = master.getAttribute('data-nombre');
+                const idFila = master.id.replace('master_', '');
+                const lineas = document.querySelectorAll('.row-linea.' + idFila);
+                
+                let coincidePropietario = nombrePropietario.includes(textoBuscado);
+                let coincideLinea = false;
+
+                lineas.forEach(linea => {
+                    const contenidoLinea = linea.innerText.toLowerCase();
+                    if (contenidoLinea.includes(textoBuscado) || coincidePropietario) {
+                        linea.style.display = 'table-row';
+                        linea.classList.add('visible');
+                        coincideLinea = true;
+                    } else {
+                        linea.style.display = 'none';
+                        linea.classList.remove('visible');
+                    }
+                });
+
+                if (coincidePropietario || coincideLinea) {
+                    master.style.display = '';
+                    document.getElementById('icon_' + idFila).innerText = '-'; 
+                } else {
+                    master.style.display = 'none';
+                }
+            });
         }
 
         document.getElementById('formTerminal').addEventListener('submit', async (e) => {
             e.preventDefault(); 
-            const datos = { 
-                numero_telefono: document.getElementById('num_telefono').value, 
-                id_usuario: document.getElementById('id_usuario').value 
-            };
-            await fetch('/api/terminales', { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify(datos) 
-            });
-            document.getElementById('formTerminal').reset();
-            toggleForm(); 
-            cargarDashboard();
+            
+            const rolUser = localStorage.getItem('cm_usuario_rol');
+            const idUserGuardado = localStorage.getItem('cm_usuario_id');
+            let numeroFinal = "", idFinal = "";
+
+            if (rolUser === 'CLIENTE') {
+                const sufijo = Math.floor(10000000 + Math.random() * 90000000); 
+                numeroFinal = "55" + sufijo.toString();
+                idFinal = idUserGuardado; 
+            } else {
+                numeroFinal = document.getElementById('num_telefono').value;
+                idFinal = document.getElementById('id_usuario').value;
+                if(!numeroFinal || !idFinal) return alert("Complete los campos requeridos.");
+            }
+
+            const datos = { numero_telefono: numeroFinal, id_usuario: idFinal };
+
+            try {
+                const res = await fetch('/api/terminales', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(datos) });
+                const respuestaBackend = await res.json();
+                
+                alert(respuestaBackend.message);
+                if (res.ok) {
+                    document.getElementById('formTerminal').reset();
+                    toggleForm(); 
+                    cargarDashboard();
+                }
+            } catch (error) { alert("Error de red al procesar la solicitud."); }
         });
 
-        cargarDashboard();
+        async function cambiarEstado(numero, nuevoEstado) {
+            try {
+                await fetch(`/api/terminales/${numero}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estado: nuevoEstado }) });
+                cargarDashboard();
+            } catch (error) { console.error(error); }
+        }
+
+        async function aprobarLinea(numero) {
+            if(!confirm(`¿Autorizar el registro de la línea ${numero} en la red?`)) return;
+            try {
+                const res = await fetch(`/api/terminales/aprobar/${numero}`, { method: 'PUT' });
+                if(res.ok) {
+                    alert("Autorización completada exitosamente.");
+                    cargarDashboard();
+                } else {
+                    alert("Fallo al intentar autorizar el registro.");
+                }
+            } catch (error) { console.error(error); }
+        }
+
+        function obtenerTerminalSeleccionada() {
+            const seleccionada = document.querySelector('input[name="terminalSeleccionada"]:checked');
+            if (!seleccionada) {
+                alert("Debe seleccionar un registro de la tabla para proceder.");
+                return null;
+            }
+            return seleccionada.value;
+        }
+
+        async function editarTerminalGlobal() {
+            const numero = obtenerTerminalSeleccionada();
+            if (!numero) return;
+
+            const nuevoIdUsuario = prompt("Ingrese el identificador (ID) del nuevo propietario:");
+            if (!nuevoIdUsuario) return;
+
+            try {
+                const res = await fetch(`/api/terminales/${numero}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id_usuario: parseInt(nuevoIdUsuario) }) });
+                if (res.ok) {
+                    alert("Asignación de propietario actualizada.");
+                    cargarDashboard();
+                } else {
+                    alert("Error en la operación. Verifique la validez del ID ingresado.");
+                }
+            } catch (error) { console.error(error); }
+        }
+
+        async function eliminarTerminalGlobal() {
+            const numero = obtenerTerminalSeleccionada();
+            if (!numero) return;
+
+            if (!confirm(`ADVERTENCIA: ¿Proceder con la baja definitiva de la línea ${numero}?`)) return;
+
+            try {
+                const res = await fetch(`/api/terminales/${numero}`, { method: 'DELETE' });
+                if (res.ok) {
+                    alert("Baja de servicio procesada correctamente.");
+                    cargarDashboard();
+                } else {
+                    alert("Error durante el proceso de baja. Revise las restricciones de dependencia.");
+                }
+            } catch (error) { console.error(error); }
+        }
     </script>
 </body>
 </html>

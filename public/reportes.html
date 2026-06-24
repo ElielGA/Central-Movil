@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reportes Ejecutivos</title>
+     <link rel="icon" type="image/png" href="imagenes/llamada-telefonica.png?v=2">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { display: flex; background-color: #f4f7f9; height: 100vh; overflow: hidden; }
+        
+        .sidebar { width: 250px; background-color: #0f172a !important; color: white; height: 100vh; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; font-size: 18px; font-weight: bold; color: #10b981; border-bottom: 1px solid #1e293b; }
+        .sidebar-menu { list-style: none; padding-top: 10px; flex: 1; }
+        .sidebar-menu li a { display: block; padding: 15px 20px; color: #cbd5e1; text-decoration: none; font-size: 14px; transition: 0.3s; }
+        .sidebar-menu li a:hover { color: white; background-color: #1e293b; }
+        .sidebar-menu li a.active { background-color: #10b981; color: white; border-radius: 0 25px 25px 0; margin-right: 20px; }
+        
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .topbar { background-color: white; padding: 18px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        
+        .dashboard-container { padding: 30px 40px; max-width: 1400px; margin: 0 auto; width: 100%; }
+        .section-header { margin-bottom: 25px; }
+        .section-header h2 { color: #0f172a; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+        .section-header p { color: #64748b; font-size: 14px; margin-top: 6px; }
+        
+        /* Tarjetas de Metricas (KPIs) */
+        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        .kpi-card { background: white; padding: 25px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background-color: #3b82f6; }
+        .kpi-card.revenue::before { background-color: #10b981; }
+        .kpi-card.users::before { background-color: #8b5cf6; }
+        .kpi-card.lines::before { background-color: #f59e0b; }
+        
+        .kpi-title { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+        .kpi-value { font-size: 32px; font-weight: 700; color: #0f172a; letter-spacing: -1px; }
+        .kpi-subtitle { font-size: 12px; color: #94a3b8; margin-top: 5px; }
+
+        /* Contenedores de Tablas */
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .card { background: white; padding: 25px; border-radius: 10px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .card-title { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; display: flex; justify-content: space-between; }
+        
+        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+        th { color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 600; background-color: #f8fafc; padding: 12px 15px; border-bottom: 2px solid #e2e8f0; text-align: left; }
+        td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; }
+        
+        .progress-bar-container { width: 100%; background-color: #e2e8f0; border-radius: 4px; height: 8px; margin-top: 5px; overflow: hidden; }
+        .progress-bar { height: 100%; background-color: #3b82f6; border-radius: 4px; }
+        
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+        .badge-green { background-color: #dcfce7; color: #166534; }
+        
+        .loader { text-align: center; color: #64748b; padding: 20px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">Central Móvil</div>
+        <ul class="sidebar-menu">
+            <li><a href="perfil.html">Mi Perfil</a></li>
+            <li id="menu-reportes"><a href="reportes.html" class="active">Reportes</a></li>
+            <li id="menu-usuarios"><a href="usuarios.html">Usuarios</a></li>
+            <li id="menu-terminales"><a href="terminales.html">Terminales</a></li>
+            <li><a href="recargas.html">Recargas</a></li>
+            <li><a href="desvios.html">Desvíos</a></li>
+            <li><a href="mensajeria.html">Mensajería</a></li>
+            <li style="margin-top: 30px; border-top: 1px solid #1e293b;">
+             <a href="index.html" onclick="cerrarSesion()" style="color: #ef4444; font-weight: bold;">Salir</a>
+           </li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <div class="topbar">
+            <div></div>
+            <div id="nombreUsuario" style="font-weight: 600; color: #1e293b; font-size: 14px;">Cargando...</div>
+        </div>
+
+        <div class="dashboard-container">
+            <div class="section-header">
+                <h2>Inteligencia de Negocio</h2>
+                <p>Métricas financieras, consolidación de usuarios y estado operativo de la red.</p>
+            </div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card revenue">
+                    <div class="kpi-title">Ingresos Totales (Bruto)</div>
+                    <div class="kpi-value" id="kpiIngresos">$0.00</div>
+                    <div class="kpi-subtitle">Sumatoria histórica de facturación</div>
+                </div>
+                <div class="kpi-card users">
+                    <div class="kpi-title">Cuentas Registradas</div>
+                    <div class="kpi-value" id="kpiUsuarios">0</div>
+                    <div class="kpi-subtitle">Usuarios en el sistema</div>
+                </div>
+                <div class="kpi-card lines">
+                    <div class="kpi-title">Terminales Asignadas</div>
+                    <div class="kpi-value" id="kpiLineas">0</div>
+                    <div class="kpi-subtitle">Líneas telefónicas activas o pendientes</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-title">Promedio de Recarga</div>
+                    <div class="kpi-value" id="kpiPromedio">$0.00</div>
+                    <div class="kpi-subtitle">Ticket promedio por cliente</div>
+                </div>
+            </div>
+
+            <div class="grid-layout">
+                <div class="card">
+                    <div class="card-title">Ranking de Propietarios por Volumen de Líneas</div>
+                    <div id="loaderRanking" class="loader">Calculando métricas...</div>
+                    <table id="tablaRanking" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Líneas Adquiridas</th>
+                                <th style="width: 40%;">Proporción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bodyRanking"></tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        Flujo de Caja Reciente
+                        <a href="recargas.html" style="font-size: 12px; color: #3b82f6; text-decoration: none;">Ver todo</a>
+                    </div>
+                    <div id="loaderFinanzas" class="loader">Extrayendo datos contables...</div>
+                    <table id="tablaFinanzas" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>RFC / Cliente</th>
+                                <th style="text-align: right;">Total Ingresado</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bodyFinanzas"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const nombreGuardado = localStorage.getItem('cm_usuario_nombre');
+            const rolGuardado = localStorage.getItem('cm_usuario_rol');
+
+            if (!nombreGuardado) {
+                window.location.href = 'index.html'; 
+                return;
+            }
+
+            // SEGURIDAD: Solo Administradores
+            if (rolGuardado === 'CLIENTE') {
+                    const menuUsuarios = document.getElementById('menu-usuarios');
+                    const menuTerminales = document.getElementById('menu-terminales');
+                    const menuReportes = document.getElementById('menu-reportes');
+                    if(menuUsuarios) menuUsuarios.style.display = 'none';
+                    if(menuTerminales) menuTerminales.style.display = 'none';
+                    if(menuReportes) menuReportes.style.display = 'none';
+            }
+
+            document.getElementById('nombreUsuario').innerText = nombreGuardado;
+            ejecutarMotorDeReportes();
+        });
+
+        function cerrarSesion() { localStorage.clear(); window.location.href = 'index.html'; }
+
+        async function ejecutarMotorDeReportes() {
+            try {
+                // Ejecutamos las 3 peticiones en paralelo para mayor velocidad
+                const [resFacturas, resUsuarios, resTerminales] = await Promise.all([
+                    fetch('/api/facturas'),
+                    fetch('/api/usuarios'),
+                    fetch('/api/terminales')
+                ]);
+
+                const facturas = await resFacturas.json();
+                const usuarios = await resUsuarios.json();
+                const terminales = await resTerminales.json();
+
+                procesarMetricasGlobales(facturas, usuarios, terminales);
+                procesarRankingClientes(terminales);
+                procesarFlujoCaja(facturas);
+
+            } catch (error) {
+                console.error("Error al generar reportes:", error);
+            }
+        }
+
+        function procesarMetricasGlobales(facturas, usuarios, terminales) {
+            // 1. Ingresos Totales y Promedio
+            let totalIngresos = 0;
+            facturas.forEach(f => { totalIngresos += f.total; });
+            
+            const promedio = facturas.length > 0 ? (totalIngresos / facturas.length) : 0;
+
+            // Renderizar KPIs
+            document.getElementById('kpiIngresos').innerText = '$' + totalIngresos.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('kpiPromedio').innerText = '$' + promedio.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('kpiUsuarios').innerText = usuarios.length;
+            document.getElementById('kpiLineas').innerText = terminales.length;
+        }
+
+        function procesarRankingClientes(terminales) {
+            // Agrupar y contar líneas por nombre
+            const conteo = terminales.reduce((acc, term) => {
+                acc[term.nombre] = (acc[term.nombre] || 0) + 1;
+                return acc;
+            }, {});
+
+            // Convertir a un arreglo y ordenar de mayor a menor
+            const ranking = Object.keys(conteo).map(nombre => {
+                return { nombre: nombre, total: conteo[nombre] };
+            }).sort((a, b) => b.total - a.total);
+
+            // Encontrar el máximo para calcular los porcentajes de la barra
+            const maxLineas = ranking.length > 0 ? ranking[0].total : 1;
+
+            const body = document.getElementById('bodyRanking');
+            body.innerHTML = '';
+
+            // Mostrar solo el Top 5
+            const top5 = ranking.slice(0, 5);
+            
+            if(top5.length === 0) {
+                body.innerHTML = '<tr><td colspan="3" style="text-align:center;">No hay líneas registradas.</td></tr>';
+            } else {
+                top5.forEach(cliente => {
+                    const porcentaje = (cliente.total / maxLineas) * 100;
+                    body.innerHTML += `
+                        <tr>
+                            <td style="font-weight: 600;">${cliente.nombre}</td>
+                            <td><span class="badge badge-green">${cliente.total} Línea(s)</span></td>
+                            <td>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: ${porcentaje}%;"></div>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+
+            document.getElementById('loaderRanking').style.display = 'none';
+            document.getElementById('tablaRanking').style.display = 'table';
+        }
+
+        function procesarFlujoCaja(facturas) {
+            const body = document.getElementById('bodyFinanzas');
+            body.innerHTML = '';
+
+            // Tomar las últimas 5 facturas (ya vienen ordenadas por fecha desde el backend)
+            const ultimas = facturas.slice(0, 5);
+
+            if(ultimas.length === 0) {
+                body.innerHTML = '<tr><td colspan="3" style="text-align:center;">No hay ingresos recientes.</td></tr>';
+            } else {
+                ultimas.forEach(f => {
+                    const fechaObj = new Date(f.fecha_emision);
+                    const fechaTxt = fechaObj.toLocaleDateString() + ' ' + fechaObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    
+                    body.innerHTML += `
+                        <tr>
+                            <td style="font-size: 12px; color: #64748b;">${fechaTxt}</td>
+                            <td style="font-family: monospace;">${f.rfc_cliente}</td>
+                            <td style="text-align: right; font-weight: 700; color: #0f172a;">$${f.total.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            document.getElementById('loaderFinanzas').style.display = 'none';
+            document.getElementById('tablaFinanzas').style.display = 'table';
+        }
+    </script>
+</body>
+</html>

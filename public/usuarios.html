@@ -5,11 +5,10 @@
     <title>Gestión de Usuarios</title>
     <link rel="icon" type="image/png" href="imagenes/llamada-telefonica.png?v=2">
     <style>
-        /* Reseteo Global y Hoja de Estilos Maestra */
+     
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { display: flex; background-color: #f8fafc; height: 100vh; overflow: hidden; }
         
-        /* Sidebar Estandarizado (Diseño Oscuro) */
         .sidebar { width: 250px; background-color: #0f172a !important; color: white; height: 100vh; display: flex; flex-direction: column; }
         .sidebar-header { padding: 20px; font-size: 18px; font-weight: bold; color: #10b981; border-bottom: 1px solid #1e293b; }
         .sidebar-menu { list-style: none; padding-top: 10px; flex: 1; }
@@ -17,11 +16,9 @@
         .sidebar-menu li a:hover { color: white; background-color: #1e293b; }
         .sidebar-menu li a.active { background-color: #10b981; color: white; border-radius: 0 25px 25px 0; margin-right: 20px; }
         
-        /* Área Principal */
         .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
         .topbar { background-color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; }
         
-        /* Contenedores y Tarjetas */
         .dashboard-container { padding: 30px; }
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .section-header h2 { color: #1e293b; font-size: 22px; }
@@ -35,7 +32,6 @@
         .card { background: white; padding: 25px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 20px; }
         .card-title { font-size: 14px; font-weight: bold; color: #1e293b; margin-bottom: 20px; text-transform: uppercase; }
         
-        /* Formularios y Botones */
         .form-inline { display: flex; gap: 10px; margin-bottom: 20px; padding: 15px; background: white; border-radius: 10px; border: 1px solid #e2e8f0; flex-wrap: wrap; }
         .form-control { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; color: #1e293b; background-color: #f8fafc; min-width: 180px; }
         .form-control:focus { outline: none; border-color: #10b981; }
@@ -44,7 +40,6 @@
         .btn-primary { background-color: #10b981; color: white; }
         .btn-primary:hover { background-color: #059669; }
         
-        /* Tablas */
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
         th, td { padding: 15px 10px; text-align: left; border-bottom: 1px solid #f1f5f9; }
         th { color: #64748b; font-size: 12px; text-transform: uppercase; }
@@ -60,6 +55,7 @@
         <div class="sidebar-header">Central Móvil</div>
         <ul class="sidebar-menu">
             <li><a href="perfil.html">Mi Perfil</a></li>
+            <li><a href="reportes.html">Reportes</a></li>
             <li id="menu-usuarios"><a href="usuarios.html" class="active">Usuarios</a></li>
             <li id="menu-terminales"><a href="terminales.html">Terminales</a></li>
             <li><a href="recargas.html">Recargas</a></li>
@@ -103,6 +99,24 @@
             </div>
 
             <div class="card">
+                <div id="cajaBuscador" style="margin-bottom:15px; display:flex; gap:10px; align-items:center;">
+        <input type="text"
+               id="inputBuscador"
+               class="form-control"
+               placeholder="Buscar usuario..."
+               onkeyup="filtrarTabla()"
+               style="max-width:300px;">
+
+        <button class="btn btn-primary" onclick="editarUsuarioGlobal()">
+            Editar Usuario
+        </button>
+
+        <button class="btn btn-primary"
+                style="background:#10b981;"
+                onclick="eliminarUsuarioGlobal()">
+            Eliminar Usuario
+        </button>
+    </div>
                 <table>
                     <thead>
                         <tr>
@@ -119,7 +133,7 @@
     </div>
 
     <script>
-        // Control de Sesión y Roles (RBAC)
+ 
         document.addEventListener('DOMContentLoaded', () => {
             const nombreGuardado = localStorage.getItem('cm_usuario_nombre');
             const rolGuardado = localStorage.getItem('cm_usuario_rol');
@@ -131,8 +145,10 @@
                 if (rolGuardado === 'CLIENTE') {
                     const menuUsuarios = document.getElementById('menu-usuarios');
                     const menuTerminales = document.getElementById('menu-terminales');
+                    const menuReportes = document.getElementById('menu-reportes');
                     if(menuUsuarios) menuUsuarios.style.display = 'none';
                     if(menuTerminales) menuTerminales.style.display = 'none';
+                    if(menuReportes) menuReportes.style.display = 'none';
                 }
             }
         });
@@ -147,7 +163,6 @@
             form.style.display = form.style.display === 'none' ? 'flex' : 'none';
         }
 
-        // Cargar los usuarios y procesar métricas
         async function cargarUsuarios() {
             try {
                 const respuesta = await fetch('/api/usuarios');
@@ -185,7 +200,6 @@
             }
         }
 
-        // Procesar inserción del formulario
         document.getElementById('formUsuario').addEventListener('submit', async (e) => {
             e.preventDefault();
             const datos = {
@@ -214,6 +228,100 @@
         });
 
         cargarUsuarios();
+
+        function filtrarTabla() {
+    const texto = document.getElementById('inputBuscador')
+        .value
+        .toLowerCase();
+
+    const filas = document.querySelectorAll('#tablaUsuarios tr');
+
+    filas.forEach(fila => {
+        const contenido = fila.innerText.toLowerCase();
+
+        fila.style.display =
+            contenido.includes(texto)
+            ? ''
+            : 'none';
+    });
+}
+
+async function editarUsuarioGlobal() {
+
+    const id = prompt("Ingrese el ID del usuario a editar:");
+
+    if (!id) return;
+
+    const nuevoNombre = prompt("Nuevo nombre:");
+
+    if (!nuevoNombre) return;
+
+    const nuevoUsername = prompt("Nuevo username:");
+
+    if (!nuevoUsername) return;
+
+    const nuevoRol = prompt(
+        "Nuevo rol (ADMINISTRADOR o CLIENTE):"
+    );
+
+    if (!nuevoRol) return;
+
+    try {
+
+        const res = await fetch(`/api/usuarios/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                nombre: nuevoNombre,
+                username: nuevoUsername,
+                rol: nuevoRol
+            })
+        });
+
+        if (res.ok) {
+            alert("Usuario actualizado.");
+            cargarUsuarios();
+        } else {
+            alert("No se pudo actualizar.");
+        }
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+async function eliminarUsuarioGlobal() {
+
+    const id = prompt(
+        "Ingrese el ID del usuario que desea eliminar:"
+    );
+
+    if (!id) return;
+
+    if (!confirm("¿Seguro que deseas eliminar este usuario?")) {
+        return;
+    }
+
+    try {
+
+        const res = await fetch(`/api/usuarios/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (res.ok) {
+            alert("Usuario eliminado.");
+            cargarUsuarios();
+        } else {
+            alert("No se pudo eliminar.");
+        }
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
     </script>
 </body>
 </html>
