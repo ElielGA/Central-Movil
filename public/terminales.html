@@ -109,8 +109,8 @@
 
             <form id="formTerminal" class="form-inline" style="display: none;">
                 <div id="inputsAdmin" style="display: flex; gap: 10px; width: 100%;">
-                    <input type="text" id="num_telefono" class="form-control" placeholder="Número Telefónico (10 dígitos)">
-                    <input type="number" id="id_usuario" class="form-control" placeholder="ID del Propietario">
+                   <input type="text" id="num_telefono" class="form-control" placeholder="Número Telefónico (10 dígitos)" aria-label="Número Telefónico">
+                   <input type="number" id="id_usuario" class="form-control" placeholder="ID del Propietario" aria-label="ID del Propietario">
                 </div>
                 
                 <div id="textoCliente" style="display: none; width: 100%; color: #64748b; font-size: 14px;">
@@ -137,8 +137,7 @@
 
             <div class="card">
                 <div id="cajaBuscador" style="margin-bottom: 25px; display: flex; justify-content: flex-start; align-items: center;">
-                    <input type="text" id="inputBuscador" class="form-control" placeholder="Buscar por número o propietario..." onkeyup="filtrarTabla()" style="max-width: 350px; margin-right: auto;">
-                
+                    <input type="text" id="inputBuscador" class="form-control" placeholder="Buscar por número o propietario..." aria-label="Buscar por número o propietario" onkeyup="filtrarTabla()" style="max-width: 350px; margin-right: auto;">
                     <button class="btn btn-success" style="display:none; margin-right:10px;" id="btnEditarGlobal" onclick="editarTerminalGlobal()">
                         Reasignar Propietario
                     </button>
@@ -363,14 +362,13 @@
             let numeroFinal = "", idFinal = "";
 
             if (rolUser === 'CLIENTE') {
-                const sufijo = Math.floor(10000000 + Math.random() * 90000000); 
-                numeroFinal = "55" + sufijo.toString();
-                idFinal = idUserGuardado; 
-            } else {
-                numeroFinal = document.getElementById('num_telefono').value;
-                idFinal = document.getElementById('id_usuario').value;
-                if(!numeroFinal || !idFinal) return alert("Complete los campos requeridos.");
-            }
+    const arrayCriptografico = new Uint32Array(1);
+    window.crypto.getRandomValues(arrayCriptografico);
+    const sufijo = 10000000 + (arrayCriptografico[0] % 90000000);
+    
+    numeroFinal = "55" + sufijo.toString();
+    idFinal = idUserGuardado; 
+}
 
             const datos = { numero_telefono: numeroFinal, id_usuario: idFinal };
 

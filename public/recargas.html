@@ -132,9 +132,9 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>RFC (Opcional para Facturar)</label>
-                            <input type="text" id="rfc" class="form-control" placeholder="Dejar en blanco para Público Gral." maxlength="13">
-                        </div>
+    <label for="rfc">RFC (Opcional para Facturar)</label>
+    <input type="text" id="rfc" class="form-control" placeholder="Dejar en blanco para Público Gral." maxlength="13">
+</div>
                         
                         <button type="submit" class="btn btn-primary">PROCESAR PAGO</button>
                     </form>
@@ -147,8 +147,7 @@
                     </div>
                     
                     <div id="cajaBuscador" style="margin-bottom: 15px; display: flex; justify-content: flex-start;">
-                        <input type="text" id="inputBuscador" class="form-control" placeholder=" Buscar por línea, folio o RFC..." onkeyup="filtrarTabla()" style="max-width: 300px; border-radius: 20px; padding-left: 15px;">
-                    </div>
+                      <input type="text" id="inputBuscador" class="form-control" placeholder=" Buscar por línea, folio o RFC..." aria-label="Buscar por línea, folio o RFC" onkeyup="filtrarTabla()" style="max-width: 300px; border-radius: 20px; padding-left: 15px;">  </div>
 
                     <div style="overflow-x: auto;">
                         <table>

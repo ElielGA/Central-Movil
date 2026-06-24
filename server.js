@@ -3,6 +3,7 @@ const sql = require('mssql');
 const cors = require('cors');
 const path = require('path');
 const bcrypt = require('bcrypt'); // <-- LA MAGIA DE LA SEGURIDAD
+const crypto = require('crypto');
 
 const app = express();
 app.use(cors());
@@ -276,9 +277,10 @@ app.post('/api/recargas', async (req, res) => {
     const { numero_telefono, monto, tipo_pago, rfc } = req.body; 
     
     // Generadores de identificadores únicos
-    const id_recarga = "REC-" + Math.floor(Math.random() * 1000000); 
-    const folio_fiscal = "UUID-" + Math.random().toString(36).substring(2, 10).toUpperCase() + "-" + Date.now().toString().substring(8);
-
+   const id_recarga = "REC-" + crypto.randomInt(100000, 999999); 
+    
+    // Genera un Identificador Único Universal (UUID versión 4) estándar para uso fiscal
+    const folio_fiscal = crypto.randomUUID().toUpperCase();
     // Cálculos fiscales (Basado en el 16% de IVA estándar)
     const tasaIva = 0.16;
     const subtotal = monto / (1 + tasaIva);

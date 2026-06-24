@@ -28,16 +28,34 @@
     <p id="subtitulo">Acceso autenticado a la red.</p>
     
     <form id="loginForm">
-        <div class="form-group"><label>Correo Electrónico</label><input type="email" id="emailLogin" class="form-control" required></div>
-        <div class="form-group"><label>Contraseña</label><input type="password" id="passLogin" class="form-control" required></div>
-        <button type="submit" class="btn-primary">ENTRAR</button>
+       <div class="form-group">
+    <label for="emailLogin">Correo Electrónico</label>
+    <input type="email" id="emailLogin" class="form-control" required>
+</div>
+
+<div class="form-group">
+    <label for="passLogin">Contraseña</label>
+    <input type="password" id="passLogin" class="form-control" required>
+</div>
+<button type="submit" class="btn-primary">ENTRAR</button>
     </form>
 
     <form id="registroForm" style="display: none;">
-        <div class="form-group"><label>Nombre Completo</label><input type="text" id="regNombre" class="form-control" required></div>
-        <div class="form-group"><label>Correo Electrónico</label><input type="email" id="regEmail" class="form-control" required></div>
-        <div class="form-group"><label>Contraseña Segura</label><input type="password" id="regPass" class="form-control" minlength="6" required></div>
-        <button type="submit" class="btn-primary">CREAR CUENTA</button>
+       <div class="form-group">
+    <label for="regNombre">Nombre Completo</label>
+    <input type="text" id="regNombre" class="form-control" required>
+</div>
+
+<div class="form-group">
+    <label for="regEmail">Correo Electrónico</label>
+    <input type="email" id="regEmail" class="form-control" required>
+</div>
+
+<div class="form-group">
+    <label for="regPass">Contraseña Segura</label>
+    <input type="password" id="regPass" class="form-control" minlength="6" required>
+</div>
+<button type="submit" class="btn-primary">CREAR CUENTA</button>
     </form>
 
     <div style="margin-top: 20px; font-size: 13px;">

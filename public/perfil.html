@@ -296,7 +296,9 @@
         // --- SOLICITAR NUEVA LÍNEA VIRTUAL (eSIM) CON LECTURA DE ERRORES ---
         async function solicitarNuevaLinea() {
             const idUserGuardado = localStorage.getItem('cm_usuario_id');
-            const sufijo = Math.floor(10000000 + Math.random() * 90000000); 
+           const arrayCriptografico = new Uint32Array(1);
+window.crypto.getRandomValues(arrayCriptografico);
+const sufijo = 10000000 + (arrayCriptografico[0] % 90000000);
             const numeroFinal = "55" + sufijo.toString();
 
             if(!confirm(`Se te asignará el número virtual: ${formatearNumero(numeroFinal)}.\n¿Deseas confirmar la solicitud?`)) return;

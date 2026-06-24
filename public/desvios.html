@@ -95,11 +95,12 @@
                 <div id="cajaBuscador" style="margin-bottom:15px; display:flex; gap:10px; align-items:center;">
 
     <input type="text"
-           id="inputBuscador"
-           class="form-control"
-           placeholder="Buscar registro..."
-           onkeyup="filtrarTabla()"
-           style="max-width:300px; border-radius:20px; padding-left:15px;">
+       id="inputBuscador"
+       class="form-control"
+       placeholder="Buscar registro..."
+       aria-label="Buscar registro"
+       onkeyup="filtrarTabla()"
+       style="max-width:350px; margin-right:auto;">
 
     <button id="btnEditar"
             onclick="editarDesvio()"

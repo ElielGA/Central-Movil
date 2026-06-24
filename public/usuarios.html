@@ -100,12 +100,13 @@
 
             <div class="card">
                 <div id="cajaBuscador" style="margin-bottom:15px; display:flex; gap:10px; align-items:center;">
-        <input type="text"
-               id="inputBuscador"
-               class="form-control"
-               placeholder="Buscar usuario..."
-               onkeyup="filtrarTabla()"
-               style="max-width:300px;">
+       <input type="text"
+       id="inputBuscador"
+       class="form-control"
+       placeholder="Buscar usuario..."
+       aria-label="Buscar usuario"
+       onkeyup="filtrarTabla()"
+       style="max-width:300px;">
 
         <button class="btn btn-primary" onclick="editarUsuarioGlobal()">
             Editar Usuario
