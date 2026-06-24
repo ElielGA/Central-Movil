@@ -1,12 +1,30 @@
 const express = require('express');
-const sql = require('mssql');
 const cors = require('cors');
 const path = require('path');
-const bcrypt = require('bcrypt'); // <-- LA MAGIA DE LA SEGURIDAD
+const bcrypt = require('bcrypt');
+const sql = require('mssql');
 const crypto = require('crypto');
 
 const app = express();
-app.use(cors());
+const origenesPermitidos = ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5500', 'http://127.0.0.1:5500'];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Permitir peticiones sin origen (como aplicaciones móviles o herramientas locales) 
+        // o si el origen está dentro de la lista permitida
+        if (!origin || origenesPermitidos.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Acceso denegado por políticas de seguridad CORS.'));
+        }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    optionsSuccessStatus: 200
+};
+
+// Aplicar la política de CORS configurada
+app.use(cors(corsOptions));
 // Confianza en proxies (necesario para leer la IP real en despliegues)
 app.set('trust proxy', true); 
 app.use(express.json());
@@ -550,7 +568,7 @@ app.get('/api/mensajes', async (req, res) => {
 
 app.post('/api/mensajes', async (req, res) => {
     const { origen, destino, cuerpo } = req.body;
-    const id_mensaje = "SMS-" + Math.floor(Math.random() * 1000000);
+    const id_mensaje = "SMS-" + crypto.randomInt(100000, 999999);
     
     try {
         let pool = await poolPromise;
